@@ -1,0 +1,46 @@
+
+(info: Slotting)
+o<slotting> sub
+          #<Start_Position> =  #1 (=10 Start position)
+         #<Final_Dia> =  #2 (=20 Final position)
+      #<Z_StartOfCut> =  #3 (=0 Z Start of Cut)
+        #<Z_EndOfCut> =  #4 (=-10 Z End of Cut)
+         #<Depth_Cut> =  #5 (=0.2 Depth of Cut)
+          #<FeedRate> =  #6 (=600 Feed Rate)
+#<Back_Travel_Offset> =  #7 (=0.5 Back Travel Offset)
+       #<Spring_Cuts> =  #8 (=0 Spring Cuts)
+
+; G43: toollength offset
+; G8:  diameter mode
+G43 G8
+
+G0 X#<Start_Position> Z#<Z_StartOfCut>
+#<Current-Diameter> = #<Start_Position>
+
+o100 while [#<Current-Diameter> lt #<Final_Dia>]
+
+O101   if [#<Current-Diameter> + #<Depth_Cut> lt #<Final_Dia>]
+         #<Current-Diameter> = [#<Current-Diameter> + #<Depth_Cut>]
+O101   else
+         #<Current-Diameter> = #<Final_Dia>
+O101   endif
+
+       X#<Current-Diameter>
+       G1 Z#<Z_EndOfCut> F#<FeedRate>
+       G0 X[#<Current-Diameter>-#<Back_Travel_Offset>]
+       Z#<Z_StartOfCut>
+o100 endwhile
+
+o102  repeat [#<Spring_Cuts>]
+       G1 X#<Final_Dia>
+       Z#<Z_EndOfCut>
+       X[#<Final_Dia>+0.002]
+       G0 X[#<Final_Dia>-#<Back_Travel_Offset>]
+       Z#<Z_StartOfCut>
+o102 endrepeat
+
+G0 X[#<Final_Dia>]
+Z#<Z_StartOfCut>
+;G49               ; cancel tool length offset
+
+o<slotting>endsub

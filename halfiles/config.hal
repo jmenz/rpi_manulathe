@@ -1,0 +1,58 @@
+# load RT components
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+loadrt encoder num_chan=3
+loadrt lowpass names=lowpass.spindle-rpm
+loadrt scale names=scale.s-rpm,scale.servo
+loadrt near names=spindle-at-speed
+loadrt ffpv_cl names=x
+
+# Logic components
+loadrt mux8 count=2
+loadrt and2 names=and.estop
+loadrt not names=not.servo_alarm
+loadrt timedelay names=delay.servo-reset-alarm
+
+loadusr -W t3d_servo slave=1
+
+# add RT functions to the servo thread
+addf motion-command-handler   servo-thread
+addf motion-controller        servo-thread
+addf ffpv-cl.update           servo-thread
+
+addf encoder.update-counters  servo-thread
+addf encoder.capture-position servo-thread
+addf lowpass.spindle-rpm      servo-thread
+addf scale.s-rpm              servo-thread
+addf scale.servo              servo-thread
+addf spindle-at-speed         servo-thread
+
+addf and.estop                servo-thread
+addf not.servo_alarm          servo-thread
+addf delay.servo-reset-alarm  servo-thread
+
+
+# General status
+#net machine-on <= motion.motion-enabled => arisc.gpio.PA12-out
+
+# E-Stop
+net estop and.estop.out => iocontrol.0.emc-enable-in
+
+#setp arisc.gpio.PA20-pull 1
+#net hardware-estop arisc.gpio.PA20-in => and.estop.in0
+
+
+#Limit Switches
+
+
+#Manual tool change
+loadusr -W hal_manualtoolchange
+net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
+net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
+net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+
+
+
+
+

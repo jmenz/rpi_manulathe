@@ -1,0 +1,47 @@
+
+######## BUTTONS
+setp arisc.gpio.PG6-pull 1
+setp arisc.gpio.PG7-pull 1
+setp arisc.gpio.PG9-pull 1
+
+net cycle_start arisc.gpio.PG7-in-not => touchy.cycle-start
+net abort arisc.gpio.PG6-in-not => touchy.abort
+net single_block arisc.gpio.PG9-in => touchy.single-block
+
+net s-position => touchy.spindle-pos
+net s-velocity-rpm-filtered => touchy.spindle-velocity
+
+######### INDICATOR
+net program-status-indicator touchy.status-indicator arisc.gpio.PG8-out-not
+
+########## WHEEL
+setp arisc.gpio.PA8-pull -1
+setp arisc.gpio.PA9-pull -1
+setp encoder.0.index-enable 0
+
+net touchy-wheel-a encoder.0.phase-A <= arisc.gpio.PA9-in
+net touchy-wheel-b encoder.0.phase-B <= arisc.gpio.PA8-in
+net touchy-wheel-counts encoder.0.counts => touchy.wheel-counts
+
+######### WHEELRESET
+setp arisc.gpio.PA10-pull 1
+net wheelreset arisc.gpio.PA10-in-not touchy.wheel-reset
+
+######### Spindle RESET
+net reset-spindle-index touchy.reset-spindel-index arisc.encoder.1.reset
+
+#JOISTICK
+
+#Axic X
+setp arisc.gpio.PE12-pull 1
+setp arisc.gpio.PE3-pull 1
+
+net x-jog-continious-plus arisc.gpio.PE12-in-not touchy.jog.continuous.x.positive
+net x-jog-continious-minus arisc.gpio.PE3-in-not touchy.jog.continuous.x.negative
+
+#Axic Z
+setp arisc.gpio.PE11-pull 1
+setp arisc.gpio.PE15-pull 1
+
+net z-jog-continious-plus arisc.gpio.PE15-in-not touchy.jog.continuous.z.positive
+net z-jog-continious-minus arisc.gpio.PE11-in-not touchy.jog.continuous.z.negative
