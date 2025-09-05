@@ -13,12 +13,17 @@ loadrt and2 names=and.estop
 loadrt not names=not.servo_alarm
 loadrt timedelay names=delay.servo-reset-alarm
 
-#loadusr -W t3d_servo slave=1
+loadrt hal_gpio inputs=GPIO4,GPIO17,GPIO27,GPIO22,GPIO10,GPIO9,GPIO11,GPIO5,GPIO6,GPIO13,GPIO19,GPIO26 \
+                outputs=GPIO14,GPIO15,GPIO18,GPIO23,GPIO24,GPIO25,GPIO7,GPIO8 \
+#                invert=GPIO20 \
+
+loadusr -W t3d_servo slave=1
 
 # add RT functions to the servo thread
 addf motion-command-handler   servo-thread
 addf motion-controller        servo-thread
 addf ffpv-cl.update           servo-thread
+addf hal_gpio.read            servo-thread
 
 addf encoder.update-counters  servo-thread
 addf encoder.capture-position servo-thread
@@ -30,6 +35,7 @@ addf spindle-at-speed         servo-thread
 addf and.estop                servo-thread
 addf not.servo_alarm          servo-thread
 addf delay.servo-reset-alarm  servo-thread
+addf hal_gpio.write           servo-thread
 
 
 # General status
@@ -38,8 +44,14 @@ addf delay.servo-reset-alarm  servo-thread
 # E-Stop
 net estop and.estop.out => iocontrol.0.emc-enable-in
 
-#setp arisc.gpio.PA20-pull 1
-#net hardware-estop arisc.gpio.PA20-in => and.estop.in0
+#temp
+#net estop-out <= iocontrol.0.user-enable-out
+#net estop-out => iocontrol.0.emc-enable-in
+setp and.estop.in1 1
+#temp
+
+
+net hardware-estop hal_gpio.GPIO4-in => and.estop.in0
 
 
 #Limit Switches

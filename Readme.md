@@ -65,4 +65,5 @@ Add the next command to autoload (Application->Settings->Session and Startup->Ap
 
 
 
-
+not sure:
+sudo apt install libgpiod-dev

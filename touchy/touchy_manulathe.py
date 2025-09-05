@@ -72,7 +72,7 @@ from t_lib import hal_interface
 from t_lib import filechooser
 from t_lib import listing
 from t_lib import preferences
-# from QuitDialog import QuitDialog
+from QuitDialog import QuitDialog
 
 pix_data = '''/* XPM */
 static char * invisible_xpm[] = {
@@ -409,20 +409,19 @@ class touchy:
         Gtk.main_quit()
 
     def shut_down(self, unused):
-        t=''
-    #     dialog = QuitDialog()
-    #     dialog.show_all()
-    #     dialog.run()
-    #     dialogResult = dialog.get_value()
-    #     dialog.destroy()
-    #     if (dialogResult == 0 ):
-    #         gtk.main_quit()
-    #     elif (dialogResult == 1):
-    #         gtk.main_quit()
-    #         subprocess.Popen('sleep 5 && systemctl reboot &', shell=True)
-    #     elif (dialogResult == 2):
-    #         gtk.main_quit()
-    #         subprocess.Popen('sleep 5 && systemctl poweroff &', shell=True)
+        dialog = QuitDialog()
+        dialog.show_all()
+        dialog.run()
+        dialogResult = dialog.get_value()
+        dialog.destroy()
+        if (dialogResult == 0 ):
+            Gtk.main_quit()
+        elif (dialogResult == 1):
+            Gtk.main_quit()
+            subprocess.Popen('sleep 5 && systemctl reboot &', shell=True)
+        elif (dialogResult == 2):
+            Gtk.main_quit()
+            subprocess.Popen('sleep 5 && systemctl poweroff &', shell=True)
 
     # def send_message(self, socket, dest_xid, message):
         # event = gtk.gdk.Event(gtk.gdk.CLIENT_EVENT)

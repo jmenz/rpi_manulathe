@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 import os
-import gtk
+from gi.repository import Gtk
 
-class QuitDialog(gtk.Dialog):
+class QuitDialog(Gtk.Dialog):
 
     def __init__(self, *args, **kwargs):
         super(QuitDialog, self).__init__(*args, **kwargs)
 
-        self.builder = gtk.Builder()
+        self.builder = Gtk.Builder()
         self.builder.add_from_file(os.path.join(os.path.dirname(__file__),"quit.ui"))
         self.dialog = self.builder.get_object("dialogQuit")
         self.dialog.set_modal(True)
