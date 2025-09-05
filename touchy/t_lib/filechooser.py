@@ -39,7 +39,7 @@ class filechooser:
                 l.set_text('')
 
             if self.selected == self.fileoffset + i:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#024663'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse("#0F579B"))
                 l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#fcfcfc'))
             else:
                 e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#ccc'))

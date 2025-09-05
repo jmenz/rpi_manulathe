@@ -127,7 +127,7 @@ class mdi:
         self.words[word] = value
 
     def set_polar(self, p):
-        self.polar = p;
+        self.polar = p
 
     def issue(self):
         m = self.gcode
@@ -181,7 +181,7 @@ class mdi_control:
         self.selected = n
         e = self.eventboxes[n]
         l = self.labels[n]
-        e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#024663'))
+        e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#0F579B'))
         l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#fcfcfc'))
 
     def get_text(self):

@@ -26,6 +26,7 @@ class listing:
         self.filename = ""
         self.program = []
         self.lines = 0
+        self.max_line_length = 64
         self.populate()
 
     def populate(self):
@@ -34,18 +35,22 @@ class listing:
             l = self.labels[i]
             e = self.eventboxes[i]
             if i < len(program):
-                l.set_text(program[i].rstrip())
+                line = program[i].rstrip()
+                if len(line) > self.max_line_length:
+                    line = line[:self.max_line_length-3] + '...'
+                    # line = textwrap.fill(line, width=self.max_line_length)
+                l.set_text(line)
             else:
                 l.set_text('')
             
             if self.start_line == self.lineoffset + i:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#024663'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse("#0F579B"))
                 l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#fcfcfc'))
             elif self.selected == self.lineoffset + i:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#024663'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#0F579B'))
                 l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#fcfcfc'))
             else:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#ccc'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#cccccc'))
                 l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#232323'))
 
 
