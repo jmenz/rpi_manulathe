@@ -36,7 +36,6 @@ from gi.repository import Pango
 import atexit
 import tempfile
 import signal
-import subprocess
 import locale
 import time
 
@@ -80,9 +79,10 @@ static char * invisible_xpm[] = {
 "        c None",
 " "};'''
 
-#color = gtk.gdk.Color()
-#pix = gtk.gdk.pixmap_create_from_data(None, pix_data, 1, 1, 1, color, color)
-#invisible = gtk.gdk.Cursor(pix, pix, color, color, 0, 0)
+
+#color = Gdk.Color(0,0,0)
+#pix = Gdk.pixmap_create_from_data(None, pix_data, 1, 1, 1, color, color)
+#invisible = Gdk.Cursor(pix, pix, color, color, 0, 0)
 
 class touchy:
     def __init__(self, inifile):
@@ -126,7 +126,7 @@ class touchy:
         self.mv_val = self.prefs.getpref('maxvel', 100, int)
         self.jog_vel_val = self.prefs.getpref('maxvel', 100, int)
         self.control_font_name = self.prefs.getpref('control_font', 'Sans 18', str)
-        self.dro_font_name = self.prefs.getpref('dro_font', 'Courier 10 Pitch Bold 16', str)
+        self.dro_font_name = self.prefs.getpref('dro_font', 'FreeMono 10 Pitch Bold 16', str)
         self.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
         self.listing_font_name = self.prefs.getpref('listing_font', 'Sans 10', str)
         self.theme_name = self.prefs.getpref('gtk_theme', 'Follow System Theme', str)
@@ -154,7 +154,7 @@ class touchy:
             temp = 0
             names = os.listdir(themedir)
             names.sort()
-            for search, dirs in enumerate(names):
+            for search,dirs in enumerate(names):
                 model.append((dirs,))
                 if dirs  == self.theme_name:
                     temp = search+1
@@ -423,6 +423,9 @@ class touchy:
             Gtk.main_quit()
             subprocess.Popen('sleep 5 && systemctl poweroff &', shell=True)
 
+# This does not work in GTK3 - https://github.com/LinuxCNC/linuxcnc/blob/master/src/emc/usr_intf/touchy/touchy.py#L403
+
+ 
     # def send_message(self, socket, dest_xid, message):
         # event = gtk.gdk.Event(gtk.gdk.CLIENT_EVENT)
         # event.window = socket.get_window()                  # needs sending gdk window
@@ -433,10 +436,9 @@ class touchy:
         # event.send_client_message(dest_xid)                 # uses destination XID window number
 
     def tabselect(self, notebook, b, tab):
-        t=0
         # new_tab = notebook.get_nth_page(tab)
         # old_tab = notebook.get_nth_page(self.tab)
-        # self.tab = tab
+        self.tab = tab
         # for c in self._dynamic_childs:
         #     if new_tab.__gtype__.name == 'GtkSocket':
         #         w = new_tab.get_plug_window()
@@ -633,7 +635,7 @@ class touchy:
                 w.override_font(self.control_font)
 
         notebook = self.wTree.get_object('notebook1')
-        for i in range(notebook.get_n_pages()): #TODO find why don't work
+        for i in range(notebook.get_n_pages()):
             w = notebook.get_nth_page(i)
             notebook.get_tab_label(w).override_font(self.control_font)
 
@@ -884,7 +886,7 @@ class touchy:
             child = Popen(cmd.split())
             self._dynamic_childs[xid] = child
             child.send_signal(signal.SIGCONT)
-            print("XID = "), xid
+            print("XID = ", xid)
         nb.show_all()
 
     def kill_dynamic_childs(self):
@@ -898,14 +900,14 @@ class touchy:
         self.prefs.putpref('spindle_speed', self.spindle_speed_val, float)
 
     def postgui(self):
-        postgui_halfile = self.ini.find("HAL", "POSTGUI_HALFILE") or None
-        return postgui_halfile, sys.argv[2]
+        postgui_halfile = self.ini.findall("HAL", "POSTGUI_HALFILE") or None
+        return postgui_halfile,sys.argv[2]
  
     def trivkins(self):
         kins = self.ini.find("KINS", "KINEMATICS")
         if kins:
             if "coordinates" in kins:
-                return kins.replace(" ", "").split("coordinates=")[1].upper()
+                return kins.replace(" ","").split("coordinates=")[1].upper()
         return "XYZABCUVW"
 
 if __name__ == "__main__":
