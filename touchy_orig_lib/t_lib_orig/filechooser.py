@@ -37,13 +37,10 @@ class filechooser:
                 l.set_text(files[i])
             else:
                 l.set_text('')
-
             if self.selected == self.fileoffset + i:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#024663'))
-                l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#fcfcfc'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#fff'))
             else:
                 e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#ccc'))
-                l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#232323'))
 
     def select(self, eventbox, event):
         n = int(self.gtk.Buildable.get_name(eventbox)[20:])
@@ -90,7 +87,7 @@ class filechooser:
 
     def reload(self, b):
         self.files = os.listdir(self.dir)
-        self.files = [i for i in self.files if (i.endswith('.ngc') or i.endswith('.nc') or i.endswith('.NGC') or i.endswith('.NC')) and
+        self.files = [i for i in self.files if i.endswith('.ngc') and
                       os.path.isfile(os.path.join(self.dir, i))]
         self.files.sort()
         self.selected = -1

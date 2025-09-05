@@ -2,27 +2,15 @@
 
 ## SPINDLE ENCODER ##
 
-# PC0:B, PC1:A, PC2:Z(index)
-setp arisc.encoder.1.pos-scale  1600 #
-setp arisc.encoder.1.A-port     2   # 2=PC
-setp arisc.encoder.1.A-pin      4   # in front of spindle
-setp arisc.encoder.1.B-port     2   # 2=PC
-setp arisc.encoder.1.B-pin      7   # in front of spindle.
-setp arisc.encoder.1.Z-port     3   # 3=PD
-setp arisc.encoder.1.Z-pin      14
-setp arisc.encoder.1.enable     1
-setp arisc.encoder.1.x4-mode    0
-setp arisc.encoder.1.simulate-index	1
-
-net s-position     arisc.encoder.1.pos => spindle.0.revs
-net s-index-enable arisc.encoder.1.index-enable <=> spindle.0.index-enable
+#net s-position     arisc.encoder.1.pos => spindle.0.revs
+#net s-index-enable arisc.encoder.1.index-enable <=> spindle.0.index-enable
 
 
 setp lowpass.spindle-rpm.gain 0.0100000
 setp scale.s-rpm.gain 0.01666666666666
 
 
-net s-velocity-rpm          arisc.encoder.1.vel-rpm => lowpass.spindle-rpm.in
+#net s-velocity-rpm          arisc.encoder.1.vel-rpm => lowpass.spindle-rpm.in
 net s-velocity-rpm-filtered lowpass.spindle-rpm.out => scale.s-rpm.in 
 net s-velocity-rps          scale.s-rpm.out         => spindle.0.speed-in
 
@@ -67,18 +55,4 @@ net servo-alarm-reset t3d_servo.reset-alarm <= delay.servo-reset-alarm.out
 
 ########### POSITION ##########
 
-#PWM
-# PA1:PWM,  PA0:FORWARD,  PA3:REWERSE
-#setp arisc.pwm.2.pos-scale   30
-#setp arisc.pwm.2.vel-scale   30
-#setp arisc.pwm.2.dc-cmd      0.5 # 50%
-#setp arisc.pwm.2.dir-hold   50000
-#setp arisc.pwm.2.dir-setup  50000
-#setp arisc.pwm.2.pwm-port    0  # 0=PA
-#setp arisc.pwm.2.pwm-pin     0
-#setp arisc.pwm.2.pwm-invert  0
-#setp arisc.pwm.2.dir-port    0  # 0=PA
-#setp arisc.pwm.2.dir-pin     3
-#setp arisc.pwm.2.dir-invert  0
-#setp arisc.pwm.2.enable      1
 

@@ -21,9 +21,8 @@ class emc_control:
                 self.emccommand = emc.command()
                 self.masked = 0;
                 self.sb = 0;
-                self.jog_velocity = 10
+                self.jog_velocity = 100.0/60.0
                 self.mdi = 0
-                self.spindle_dir = self.emc.SPINDLE_OFF
                 self.listing = listing
                 self.error = error
                 self.isjogging = [0,0,0,0,0,0,0,0,0]
@@ -42,10 +41,6 @@ class emc_control:
 
         def unmask(self):
                 self.masked = 0
-
-        def is_mode_manual(self):
-                self.emcstat.poll()
-                return self.emcstat.task_state == self.emc.MODE_MANUAL
 
         def mist_on(self, b):
                 if self.masked: return
@@ -109,7 +104,7 @@ class emc_control:
                 joint = coordinates.index("XYZABCUVW"[axis])
                 self.emccommand.unhome(joint)
 
-        def set_manual_mode(self, b):
+        def jogging(self, b):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
 
@@ -118,29 +113,20 @@ class emc_control:
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.emccommand.override_limits()
 
-        def spindle_forward(self, speed):
+        def spindle_forward(self, b):
                 if self.masked: return
-                self.spindle_dir = self.emc.SPINDLE_FORWARD
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.spindle(self.spindle_dir, speed, 0);
+                self.emccommand.spindle(1, 1, 0);
 
         def spindle_off(self, b):
                 if self.masked: return
-                self.spindle_dir = self.emc.SPINDLE_OFF
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.spindle(self.spindle_dir);
+                self.emccommand.spindle(0);
 
-        def spindle_reverse(self, speed):
+        def spindle_reverse(self, b):
                 if self.masked: return
-                self.spindle_dir = self.emc.SPINDLE_REVERSE
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.spindle(self.spindle_dir, speed, 0);
-
-        def spindle_set_speed(self, speed):
-                if self.masked: return
-                if self.spindle_dir == self.emc.SPINDLE_OFF : return
-
-                self.emccommand.spindle(self.spindle_dir, speed, 0);
+                self.emccommand.spindle(-1, 1, 0);
 
         def spindle_faster(self, b):
                 if self.masked: return
@@ -160,7 +146,7 @@ class emc_control:
 
         def continuous_jog_velocity(self, velocity):
                 self.set_motion_mode()
-                self.jog_velocity = velocity
+                self.jog_velocity = velocity / 60.0
                 for i in range(9):
                         if self.isjogging[i]:
                                 self.emccommand.jog(self.emc.JOG_CONTINUOUS
@@ -168,15 +154,15 @@ class emc_control:
         
         def continuous_jog(self, axis, direction):
                 if self.masked: return
+                self.set_motion_mode()
                 if direction == 0:
                         self.isjogging[axis] = 0
                         self.emccommand.jog(self.emc.JOG_STOP, 0, axis)
                 else:
-                        self.emccommand.mode(self.emc.MODE_MANUAL)
-                        self.set_motion_mode()
                         self.isjogging[axis] = direction
-                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, 0, axis, direction * self.jog_velocity)
-        
+                        self.emccommand.jog(self.emc.JOG_CONTINUOUS
+                        ,0 ,axis ,direction * self.jog_velocity)
+                
         def quill_up(self):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
@@ -194,7 +180,7 @@ class emc_control:
 
         def max_velocity(self, m):
                 if self.masked: return
-                self.emccommand.maxvel(m)
+                self.emccommand.maxvel(m/60.0)
 
         def reload_tooltable(self, b):
                 if self.masked: return
@@ -249,15 +235,14 @@ class emc_control:
                                 self.listing.clear_startline()
 
 class emc_status:
-        def __init__(self, gtk, emc, listing, hal, relative, absolute, distance,
+        def __init__(self, gtk, emc, listing, relative, absolute, distance,
                      dro_table,
                      error,
                      estops, machines, override_limit, status,
-                     floods, mists, spindles, prefs, opstop, blockdel, spindle_values):
+                     floods, mists, spindles, prefs, opstop, blockdel):
                 self.gtk = gtk
                 self.emc = emc
                 self.listing = listing
-                self.hal = hal
                 self.relative = relative
                 self.absolute = absolute
                 self.distance = distance
@@ -273,8 +258,6 @@ class emc_status:
                 self.prefs = prefs
                 self.opstop = opstop
                 self.blockdel = blockdel
-                self.spindle_values = spindle_values
-
                 self.resized_dro = 0
                 
                 self.mm = 0
@@ -283,8 +266,6 @@ class emc_status:
                 self.actual = 0
                 self.emcstat = emc.stat()
                 self.emcerror = emc.error_channel()
-                
-                self.is_manual_mode = 0
 
         def dro_inch(self, b):
                 self.mm = 0
@@ -324,8 +305,6 @@ class emc_status:
                 am = self.emcstat.axis_mask
                 lathe = not (self.emcstat.axis_mask & 2)
                 dtg = self.emcstat.dtg
-                self.is_manual_mode = self.emcstat.task_mode == self.emc.MODE_MANUAL
-                self.is_program_executing = self.emcstat.state == self.emc.RCS_EXEC
 
                 if not self.resized_dro:
                         height = 9
@@ -472,7 +451,11 @@ class emc_status:
                         
                 
                 set_text(self.status['xyrotation'], "%d" % self.emcstat.rotation_xy)
-                set_text(self.status['tlo'], "%.4f" % self.emcstat.tool_offset[2])
+
+                if lathe:
+                    set_text(self.status['tlo'], "X:%.4f Z:%.4f" % (self.emcstat.tool_offset[0], self.emcstat.tool_offset[2]))
+                else:
+                    set_text(self.status['tlo'], "%.4f" % self.emcstat.tool_offset[2])
 
                 cs = self.emcstat.g5x_index
                 if cs<7:
@@ -521,10 +504,7 @@ class emc_status:
                 
                 set_active(self.blockdel['on'], self.emcstat.block_delete)
                 set_active(self.blockdel['off'], not self.emcstat.block_delete)
-
-                set_text(self.spindle_values['sp_commanded'], "Set: %d" % self.emcstat.spindle[0]['speed'])
-                set_text(self.spindle_values['sp_current'], "Current: %d" % self.hal.spindle_velocity)
-                set_text(self.spindle_values['sp_angle'], "Angle: %#06.2f" % self.hal.spindle_pos)
+                
 
                 if self.emcstat.motion_id == 0 and (self.emcstat.interp_state == self.emc.INTERP_PAUSED or self.emcstat.exec_state == self.emc.EXEC_WAITING_FOR_DELAY):
                         self.listing.highlight_line(self.emcstat.current_line)
@@ -536,6 +516,6 @@ class emc_status:
                 e = self.emcerror.poll()
                 if e:
                         kind, text = e
-                        set_text(self.error, text.replace("\n", " "))
+                        set_text(self.error, text[:80])
 
                 

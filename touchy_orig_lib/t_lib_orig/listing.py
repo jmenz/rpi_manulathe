@@ -37,17 +37,12 @@ class listing:
                 l.set_text(program[i].rstrip())
             else:
                 l.set_text('')
-            
             if self.start_line == self.lineoffset + i:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#024663'))
-                l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#fcfcfc'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse("#66F"))
             elif self.selected == self.lineoffset + i:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#024663'))
-                l.modify_fg(self.gtk.STATE_NORMAL, Gdk.color_parse('#fcfcfc'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse("#FFF"))
             else:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#ccc'))
-                l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#232323'))
-
+                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse("#CCC"))
 
     def show_line(self, n):
         if len(self.program) <= self.numlabels:
