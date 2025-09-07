@@ -117,6 +117,8 @@ class touchy:
         self.wTree.get_object('MainWindow').set_can_focus(True)
         self.wTree.get_object('MainWindow').grab_focus()
 
+        self.widgets = {} # local storgage of widgets
+
         self.num_mdi_labels = 11
         self.num_filechooser_labels = 11
         self.num_listing_labels = 20
@@ -332,7 +334,7 @@ class touchy:
         GLib.timeout_add(1500, self.fullscreen_startup)
 
         # event bindings
-        dic = {
+        dic = {#todo rename
             "quit" : self.quit,
             "on_pointer_show_clicked" : self.pointer_show,
             "on_pointer_hide_clicked" : self.pointer_hide,
@@ -440,37 +442,19 @@ class touchy:
             Gtk.main_quit()
             subprocess.Popen('sleep 5 && systemctl poweroff &', shell=True)
 
-# This does not work in GTK3 - https://github.com/LinuxCNC/linuxcnc/blob/master/src/emc/usr_intf/touchy/touchy.py#L403
-
- 
-    # def send_message(self, socket, dest_xid, message):
-        # event = gtk.gdk.Event(gtk.gdk.CLIENT_EVENT)
-        # event.window = socket.get_window()                  # needs sending gdk window
-        # event.message_type = gtk.gdk.atom_intern('Gladevcp')    # change to any text you like
-        # event.data_format = 8                               # 8 bit (char) data (options: long,short)
-        # event.data = message                                # must be exactly 20 char bytes (options: 5 long or 10 short)
-        # event.send_event = True                             # signals this was sent explicedly
-        # event.send_client_message(dest_xid)                 # uses destination XID window number
+    def get_widget(self, widget_name):
+        if widget_name not in self.widgets:
+            self.widgets[widget_name] = self.wTree.get_object(widget_name)
+        return self.widgets[widget_name]
 
     def tabselect(self, notebook, b, tab):
-        # new_tab = notebook.get_nth_page(tab)
-        # old_tab = notebook.get_nth_page(self.tab)
         self.tab = tab
-        # for c in self._dynamic_childs:
-        #     if new_tab.__gtype__.name == 'GtkSocket':
-        #         w = new_tab.get_plug_window()
-        #         if new_tab.get_id() == c:
-        #             self.send_message(new_tab, w.xid, "Visible\0\0\0\0\0\0\0\0\0\0\0\0\0")
-        #     if old_tab.__gtype__.name == 'GtkSocket':
-        #         w = old_tab.get_plug_window()
-        #         if old_tab.get_id() == c:
-        #             self.send_message(old_tab, w.xid, "Hidden\0\0\0\0\0\0\0\0\0\0\0\0\0\0")
 
     def pointer_hide(self, b = None):
             if self.radiobutton_mask: return
             self.prefs.putpref('invisible_cursor', 1)
             self.invisible_cursor = 1
-            win = self.wTree.get_object("MainWindow").get_window()
+            win = self.get_widget("MainWindow").get_window()
             cursor = Gdk.Cursor(Gdk.CursorType.BLANK_CURSOR)
             win.set_cursor(cursor)
 
@@ -478,7 +462,7 @@ class touchy:
         if self.radiobutton_mask: return
         self.prefs.putpref('invisible_cursor', 0)
         self.invisible_cursor = 0
-        win = self.wTree.get_object("MainWindow").get_window()
+        win = self.get_widget("MainWindow").get_window()
         cursor = Gdk.Cursor(Gdk.CursorType.ARROW)
         win.set_cursor(cursor)
 
@@ -486,13 +470,13 @@ class touchy:
         if self.radiobutton_mask: return
         self.prefs.putpref('fullscreen', 1)
         self.fullscreen = 1
-        self.wTree.get_object('MainWindow').fullscreen()
+        self.get_widget('MainWindow').fullscreen()
 
     def fullscreen_off(self, b):
         if self.radiobutton_mask: return
         self.prefs.putpref('fullscreen', 0)
         self.fullscreen = 0
-        self.wTree.get_object('MainWindow').unfullscreen()
+        self.get_widget('MainWindow').unfullscreen()
 
     def dro_commanded(self, b):
         if self.radiobutton_mask: return
@@ -583,7 +567,7 @@ class touchy:
 
     def scrolling(self, b):
         if self.radiobutton_mask: return
-        self.wTree.get_object('notebook1').set_current_page(3)
+        self.get_widget('notebook1').set_current_page(3)
         self.wheel = "scrolling"
 
     def set_manual(self, b):
@@ -648,36 +632,36 @@ class touchy:
                   "reload_tooltable", "opstop_on", "opstop_off", "blockdel_on", "blockdel_off",
                   "pointer_hide", "pointer_show", "fullscreen_on", "fullscreen_off",
                   "toolset_workpiece", "toolset_fixture", "change_theme", "reset_spinde_index", "shut_down"]:
-            w = self.wTree.get_object(i)
+            w = self.get_widget(i)
             if w:
                 w.override_font(self.control_font)
 
-        notebook = self.wTree.get_object('notebook1')
+        notebook = self.get_widget('notebook1')
         for i in range(notebook.get_n_pages()):
             w = notebook.get_nth_page(i)
             notebook.get_tab_label(w).override_font(self.control_font)
 
         # labels
         for i in range(self.num_mdi_labels):
-            w = self.wTree.get_object("mdi%d" % i)
+            w = self.get_widget("mdi%d" % i)
             w.override_font(self.control_font)
         for i in range(self.num_filechooser_labels):
-            w = self.wTree.get_object("filechooser%d" % i)
+            w = self.get_widget("filechooser%d" % i)
             w.override_font(self.control_font)
         for i in range(self.num_listing_labels):
-            w = self.wTree.get_object("listing%d" % i)
+            w = self.get_widget("listing%d" % i)
             w.override_font(self.listing_font)
         for i in ["mdi", "startup", "manual", "auto", "preferences", "status",
                   "relative", "absolute", "dtg", "ss2label", "status_spindlespeed2",
                   "spindle_stat"]:
-            w = self.wTree.get_object(i)
+            w = self.get_widget(i)
             w.override_font(self.control_font)
 
         # dro
         for i in ['xr', 'yr', 'zr', 'ar', 'br', 'cr', 'ur', 'vr', 'wr',
                   'xa', 'ya', 'za', 'aa', 'ba', 'ca', 'ua', 'va', 'wa',
                   'xd', 'yd', 'zd', 'ad', 'bd', 'cd', 'ud', 'vd', 'wd']:
-                w = self.wTree.get_object(i)
+                w = self.get_widget(i)
                 if w:
                     w.override_font(self.dro_font)
                     if "r" in i and not self.rel_textcolor == "default":
@@ -689,14 +673,14 @@ class touchy:
 
         # spindle info
         for i in ["sp_commanded", "sp_current", "sp_angle"]:
-            w = self.wTree.get_object(i)
+            w = self.get_widget(i)
             w.override_font(self.dro_font)
             if not self.err_textcolor == "default":
                 w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.dtg_textcolor))
 
         # status bar
         for i in ["error"]:
-            w = self.wTree.get_object(i)
+            w = self.get_widget(i)
             w.override_font(self.error_font)
             if not self.err_textcolor == "default":
                 w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.err_textcolor))
@@ -813,31 +797,31 @@ class touchy:
             self.wheel = "fo"
 
         if (self.status.is_manual_mode == 1):
-            hide_widget(self.wTree.get_object("fo"))
-            hide_widget(self.wTree.get_object("fo"))
-            hide_widget(self.wTree.get_object("so"))
-            show_widget( self.wTree.get_object("rpm"))
+            hide_widget(self.get_widget("fo"))
+            hide_widget(self.get_widget("fo"))
+            hide_widget(self.get_widget("so"))
+            show_widget(self.get_widget("rpm"))
             if self.wheel == "fo" or self.wheel == "so":
                 self.wheel = "mv"
         else:
-            show_widget(self.wTree.get_object("fo"))
-            self.wTree.get_object("so").show()
-            hide_widget(self.wTree.get_object("rpm"))
+            show_widget(self.get_widget("fo"))
+            show_widget(self.get_widget("so"))
+            hide_widget(self.get_widget("rpm"))
             if self.wheel == "rpm":
                 self.wheel = "fo"
 
-        set_active(self.wTree.get_object("fo"), self.wheel == "fo")
-        set_active(self.wTree.get_object("so"), self.wheel == "so")
-        set_active(self.wTree.get_object("rpm"), self.wheel == "rpm")
-        set_active(self.wTree.get_object("mv"), self.wheel == "mv")
-        set_active(self.wTree.get_object("manual_mode"), self.status.is_manual_mode == 1)
-        set_active(self.wTree.get_object("scrolling"), self.wheel == "scrolling")
-        set_active(self.wTree.get_object("pointer_show"), not self.invisible_cursor)
-        set_active(self.wTree.get_object("pointer_hide"), self.invisible_cursor)
-        set_active(self.wTree.get_object("fullscreen_on"), self.fullscreen)
-        set_active(self.wTree.get_object("fullscreen_off"), not self.fullscreen)
-        set_active(self.wTree.get_object("toolset_workpiece"), not self.g10l11)
-        set_active(self.wTree.get_object("toolset_fixture"), self.g10l11)
+        set_active(self.get_widget("fo"), self.wheel == "fo")
+        set_active(self.get_widget("so"), self.wheel == "so")
+        set_active(self.get_widget("rpm"), self.wheel == "rpm")
+        set_active(self.get_widget("mv"), self.wheel == "mv")
+        set_active(self.get_widget("manual_mode"), self.status.is_manual_mode == 1)
+        set_active(self.get_widget("scrolling"), self.wheel == "scrolling")
+        set_active(self.get_widget("pointer_show"), not self.invisible_cursor)
+        set_active(self.get_widget("pointer_hide"), self.invisible_cursor)
+        set_active(self.get_widget("fullscreen_on"), self.fullscreen)
+        set_active(self.get_widget("fullscreen_off"), not self.fullscreen)
+        set_active(self.get_widget("toolset_workpiece"), not self.g10l11)
+        set_active(self.get_widget("toolset_fixture"), self.g10l11)
         self.radiobutton_mask = 0
 
         d = self.hal.wheel()
@@ -857,26 +841,26 @@ class touchy:
             if d != 0:
                 self.listing.next(None, d0)
 
-        self.wTree.get_object("fo").set_label("FO: %d%%" % self.fo_val)
-        self.wTree.get_object("so").set_label("SO: %d%%" % self.so_val)
+        self.get_widget("fo").set_label("FO: %d%%" % self.fo_val)
+        self.get_widget("so").set_label("SO: %d%%" % self.so_val)
 
         if (self.status.is_manual_mode == 1):
-            self.wTree.get_object("rpm").set_label("RPM: %d" % self.spindle_speed_val)
-            self.wTree.get_object("mv").set_label("MV: %.2f" % self.jog_vel_val)
+            self.get_widget("rpm").set_label("RPM: %d" % self.spindle_speed_val)
+            self.get_widget("mv").set_label("MV: %.2f" % self.jog_vel_val)
         else:
-            self.wTree.get_object("mv").set_label("MV: %.2f" % self.mv_val)
+            self.get_widget("mv").set_label("MV: %.2f" % self.mv_val)
 
         return True
         
     def fullscreen_startup(self):
         if(self.fullscreen_startup_processed == 1): return
         if (self.fullscreen):
-            self.wTree.get_object('MainWindow').fullscreen()                
+            self.get_widget('MainWindow').fullscreen()                
         self.fullscreen_startup_processed = 1
                 
     def hack_leave(self,w):
         if not self.invisible_cursor: return
-        w = self.wTree.get_object("MainWindow").get_window()
+        w = self.get_widget("MainWindow").get_window()
         d = w.get_display()
         s = w.get_screen()
         _, x, y = Gdk.Window.get_origin(w)
@@ -895,7 +879,7 @@ class touchy:
         tab_cmd   = self.ini.findall("DISPLAY", "EMBED_TAB_COMMAND")
         if len(tab_names) != len(tab_cmd):
             print("Invalid tab configuration")  # Complain somehow
-        nb = self.wTree.get_object('notebook1')
+        nb = self.get_widget('notebook1')
         for t, c in zip(tab_names, tab_cmd):
             xid = self._dynamic_tab(nb, t)
             if not xid: continue
