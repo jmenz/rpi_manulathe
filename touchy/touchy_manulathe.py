@@ -114,10 +114,10 @@ class touchy:
                 widget.set_can_focus(False)
             except:
                 pass
-        self.wTree.get_object('MainWindow').set_can_focus(True)
-        self.wTree.get_object('MainWindow').grab_focus()
 
         self.widgets = {} # local storgage of widgets
+        self.get_widget('MainWindow').set_can_focus(True)
+        self.get_widget('MainWindow').grab_focus()
 
         self.num_mdi_labels = 11
         self.num_filechooser_labels = 11
@@ -160,7 +160,7 @@ class touchy:
 
         # initial screen setup
         if os.path.exists(themedir):
-            model = self.wTree.get_object("theme_choice").get_model()
+            model = self.get_widget("theme_choice").get_model()
             model.clear()
             model.append((_("Follow System Theme"),))
             temp = 0
@@ -170,29 +170,29 @@ class touchy:
                 model.append((dirs,))
                 if dirs  == self.theme_name:
                     temp = search+1
-            self.wTree.get_object("theme_choice").set_active(temp)
+            self.get_widget("theme_choice").set_active(temp)
 
         if self.window_geometry == "default":
-                    self.wTree.get_object("MainWindow").maximize()
+            self.get_widget("MainWindow").maximize()
         else:
-            self.wTree.get_object("MainWindow").parse_geometry(self.window_geometry)
+            self.get_widget("MainWindow").parse_geometry(self.window_geometry)
             if self.window_max:
-                self.wTree.get_object("MainWindow").window.maximize()
+                self.get_widget("MainWindow").window.maximize()
         self.invisible_cursor = self.prefs.getpref('invisible_cursor', 0)
         if self.invisible_cursor:
             self.pointer_hide()
         else:
             self.pointer_show()
-        self.wTree.get_object("controlfontbutton").set_font(self.control_font_name)
+        self.get_widget("controlfontbutton").set_font(self.control_font_name)
         self.control_font = Pango.FontDescription(self.control_font_name)
 
-        self.wTree.get_object("drofontbutton").set_font(self.dro_font_name)
+        self.get_widget("drofontbutton").set_font(self.dro_font_name)
         self.dro_font = Pango.FontDescription(self.dro_font_name)
 
-        self.wTree.get_object("errorfontbutton").set_font(self.error_font_name)
+        self.get_widget("errorfontbutton").set_font(self.error_font_name)
         self.error_font = Pango.FontDescription(self.error_font_name)
 
-        self.wTree.get_object("listingfontbutton").set_font(self.listing_font_name)
+        self.get_widget("listingfontbutton").set_font(self.listing_font_name)
         self.listing_font = Pango.FontDescription(self.listing_font_name)
 
         self.colors = {
@@ -211,25 +211,25 @@ class touchy:
         mdi_labels = []
         mdi_eventboxes = []
         for i in range(self.num_mdi_labels):
-            mdi_labels.append(self.wTree.get_object("mdi%d" % i))
-            mdi_eventboxes.append(self.wTree.get_object("eventbox_mdi%d" % i))
+            mdi_labels.append(self.get_widget("mdi%d" % i))
+            mdi_eventboxes.append(self.get_widget("eventbox_mdi%d" % i))
         self.mdi_control = mdi.mdi_control(Gtk, linuxcnc, mdi_labels, mdi_eventboxes, self.colors)
         if self.ini:
             macros = self.ini.findall("TOUCHY", "MACRO")
             if len(macros) > 0:
                 self.mdi_control.mdi.add_macros(macros)
             else:
-                self.wTree.get_object("macro").set_sensitive(0)
+                self.get_widget("macro").set_sensitive(0)
 
         listing_labels = []
         listing_eventboxes = []
         for i in range(self.num_listing_labels):
-            listing_labels.append(self.wTree.get_object("listing%d" % i))
-            listing_eventboxes.append(self.wTree.get_object("eventbox_listing%d" % i))
+            listing_labels.append(self.get_widget("listing%d" % i))
+            listing_eventboxes.append(self.get_widget("eventbox_listing%d" % i))
         self.listing = listing.listing(Gtk, linuxcnc, listing_labels, listing_eventboxes, self.colors)
 
         # emc interface
-        self.linuxcnc = emc_interface.emc_control(linuxcnc, self.listing, self.wTree.get_object("error"))
+        self.linuxcnc = emc_interface.emc_control(linuxcnc, self.listing, self.get_widget("error"))
         self.linuxcnc.continuous_jog_velocity(self.jog_vel_val)
         self.hal = hal_interface.hal_interface(self, self.linuxcnc, self.mdi_control, linuxcnc)
 
@@ -237,46 +237,46 @@ class touchy:
         filechooser_labels = []
         filechooser_eventboxes = []
         for i in range(self.num_filechooser_labels):
-            filechooser_labels.append(self.wTree.get_object("filechooser%d" % i))
-            filechooser_eventboxes.append(self.wTree.get_object("eventbox_filechooser%d" % i))
+            filechooser_labels.append(self.get_widget("filechooser%d" % i))
+            filechooser_eventboxes.append(self.get_widget("eventbox_filechooser%d" % i))
         self.filechooser = filechooser.filechooser(Gtk, linuxcnc, filechooser_labels, filechooser_eventboxes, self.listing, self.colors)
 
         relative = ['xr', 'yr', 'zr', 'ar', 'br', 'cr', 'ur', 'vr', 'wr']
         absolute = ['xa', 'ya', 'za', 'aa', 'ba', 'ca', 'ua', 'va', 'wa']
         distance = ['xd', 'yd', 'zd', 'ad', 'bd', 'cd', 'ud', 'vd', 'wd']
-        relative = [self.wTree.get_object(i) for i in relative]
-        absolute = [self.wTree.get_object(i) for i in absolute]
-        distance = [self.wTree.get_object(i) for i in distance]
+        relative = [self.get_widget(i) for i in relative]
+        absolute = [self.get_widget(i) for i in absolute]
+        distance = [self.get_widget(i) for i in distance]
                 
         estops = ['estop_reset', 'estop']
-        estops = dict((i, self.wTree.get_object(i)) for i in estops)
+        estops = dict((i, self.get_widget(i)) for i in estops)
         machines = ['on', 'off']
-        machines = dict((i, self.wTree.get_object("machine_" + i)) for i in machines)
+        machines = dict((i, self.get_widget("machine_" + i)) for i in machines)
         floods = ['on', 'off']
-        floods = dict((i, self.wTree.get_object("flood_" + i)) for i in floods)
+        floods = dict((i, self.get_widget("flood_" + i)) for i in floods)
         mists = ['on', 'off']
-        mists = dict((i, self.wTree.get_object("mist_" + i)) for i in mists)
+        mists = dict((i, self.get_widget("mist_" + i)) for i in mists)
         spindles = ['forward', 'off', 'reverse']
-        spindles = dict((i, self.wTree.get_object("spindle_" + i)) for i in spindles)
+        spindles = dict((i, self.get_widget("spindle_" + i)) for i in spindles)
         stats = ['file', 'file_lines', 'line', 'id', 'dtg', 'velocity', 'delay', 'onlimit',
                  'spindledir', 'spindlespeed', 'loadedtool', 'preppedtool',
                  'xyrotation', 'tlo', 'activecodes', 'spindlespeed2',
                  'label_g5xoffset', 'g5xoffset', 'g92offset', 'tooltable']
-        stats = dict((i, self.wTree.get_object("status_" + i)) for i in stats)
+        stats = dict((i, self.get_widget("status_" + i)) for i in stats)
         prefs = ['actual', 'commanded', 'inch', 'mm']
-        prefs = dict((i, self.wTree.get_object("dro_" + i)) for i in prefs)
+        prefs = dict((i, self.get_widget("dro_" + i)) for i in prefs)
         opstop = ['on', 'off']
-        opstop = dict((i, self.wTree.get_object("opstop_" + i)) for i in opstop)
+        opstop = dict((i, self.get_widget("opstop_" + i)) for i in opstop)
         blockdel = ['on', 'off']
-        blockdel = dict((i, self.wTree.get_object("blockdel_" + i)) for i in blockdel)
+        blockdel = dict((i, self.get_widget("blockdel_" + i)) for i in blockdel)
         spindle_values = ['sp_commanded', 'sp_current', 'sp_angle']
-        spindle_values = dict((i, self.wTree.get_object(i)) for i in spindle_values)
+        spindle_values = dict((i, self.get_widget(i)) for i in spindle_values)
 
         self.status = emc_interface.emc_status(Gtk, linuxcnc, self.listing, self.hal, relative, absolute, distance,
-                                               self.wTree.get_object("dro_table"),
-                                               self.wTree.get_object("error"),
+                                               self.get_widget("dro_table"),
+                                               self.get_widget("error"),
                                                estops, machines,
-                                               self.wTree.get_object("override_limits"),
+                                               self.get_widget("override_limits"),
                                                stats,
                                                floods, mists, spindles, prefs,
                                                opstop, blockdel, spindle_values)
