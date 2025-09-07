@@ -64,6 +64,16 @@ def set_text(w, t):
     ot = w.get_label()
     if ot != t: w.set_label(t)
 
+def show_widget(w):
+    if not w: return
+    if not w.get_visible():
+        w.show()
+
+def hide_widget(w):
+    if not w: return
+    if w.get_visible():
+        w.hide()
+
 import linuxcnc
 from t_lib import emc_interface
 from t_lib import mdi
@@ -573,6 +583,7 @@ class touchy:
 
     def scrolling(self, b):
         if self.radiobutton_mask: return
+        self.wTree.get_object('notebook1').set_current_page(3)
         self.wheel = "scrolling"
 
     def set_manual(self, b):
@@ -797,22 +808,21 @@ class touchy:
         self.mv_val = s.max_velocity
 
         self.hal.resetSpindel(0)
-            
-        self.wTree.get_object("scrolling").set_sensitive(self.tab == 3)
 
         if self.tab != 3 and self.wheel == "scrolling":
             self.wheel = "fo"
 
         if (self.status.is_manual_mode == 1):
-            self.wTree.get_object("fo").hide()
-            self.wTree.get_object("so").hide()
-            self.wTree.get_object("rpm").show()
+            hide_widget(self.wTree.get_object("fo"))
+            hide_widget(self.wTree.get_object("fo"))
+            hide_widget(self.wTree.get_object("so"))
+            show_widget( self.wTree.get_object("rpm"))
             if self.wheel == "fo" or self.wheel == "so":
                 self.wheel = "mv"
         else:
-            self.wTree.get_object("fo").show()
+            show_widget(self.wTree.get_object("fo"))
             self.wTree.get_object("so").show()
-            self.wTree.get_object("rpm").hide()
+            hide_widget(self.wTree.get_object("rpm"))
             if self.wheel == "rpm":
                 self.wheel = "fo"
 
