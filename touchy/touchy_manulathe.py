@@ -183,6 +183,13 @@ class touchy:
         self.wTree.get_object("listingfontbutton").set_font(self.listing_font_name)
         self.listing_font = Pango.FontDescription(self.listing_font_name)
 
+        self.colors = {
+            'selected_bg': Gdk.color_parse('#0F579B'),
+            'selected_fg': Gdk.color_parse('#fcfcfc'),
+            'normal_bg':   Gdk.color_parse('#ccc'),
+            'normal_fg':   Gdk.color_parse('#232323')
+        }
+
         settings = Gtk.Settings.get_default()
         self.system_theme = settings.get_property("gtk-theme-name")
         if not self.theme_name == "Follow System Theme":
@@ -194,7 +201,7 @@ class touchy:
         for i in range(self.num_mdi_labels):
             mdi_labels.append(self.wTree.get_object("mdi%d" % i))
             mdi_eventboxes.append(self.wTree.get_object("eventbox_mdi%d" % i))
-        self.mdi_control = mdi.mdi_control(Gtk, linuxcnc, mdi_labels, mdi_eventboxes)
+        self.mdi_control = mdi.mdi_control(Gtk, linuxcnc, mdi_labels, mdi_eventboxes, self.colors)
         if self.ini:
             macros = self.ini.findall("TOUCHY", "MACRO")
             if len(macros) > 0:
@@ -207,7 +214,7 @@ class touchy:
         for i in range(self.num_listing_labels):
             listing_labels.append(self.wTree.get_object("listing%d" % i))
             listing_eventboxes.append(self.wTree.get_object("eventbox_listing%d" % i))
-        self.listing = listing.listing(Gtk, linuxcnc, listing_labels, listing_eventboxes)
+        self.listing = listing.listing(Gtk, linuxcnc, listing_labels, listing_eventboxes, self.colors)
 
         # emc interface
         self.linuxcnc = emc_interface.emc_control(linuxcnc, self.listing, self.wTree.get_object("error"))
@@ -220,7 +227,7 @@ class touchy:
         for i in range(self.num_filechooser_labels):
             filechooser_labels.append(self.wTree.get_object("filechooser%d" % i))
             filechooser_eventboxes.append(self.wTree.get_object("eventbox_filechooser%d" % i))
-        self.filechooser = filechooser.filechooser(Gtk, linuxcnc, filechooser_labels, filechooser_eventboxes, self.listing)
+        self.filechooser = filechooser.filechooser(Gtk, linuxcnc, filechooser_labels, filechooser_eventboxes, self.listing, self.colors)
 
         relative = ['xr', 'yr', 'zr', 'ar', 'br', 'cr', 'ur', 'vr', 'wr']
         absolute = ['xa', 'ya', 'za', 'aa', 'ba', 'ca', 'ua', 'va', 'wa']

@@ -59,7 +59,7 @@ void main_loop(t3d_servo_t *comp) {
             comp->last_modbus_read_time = current_time;
         }
 
-        usleep(MAIN_LOOP_PERIOD);  // Sleep for 100ms (10 Hz polling rate)
+        usleep(MAIN_LOOP_PERIOD);
     }
 }
 

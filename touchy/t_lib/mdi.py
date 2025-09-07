@@ -155,9 +155,10 @@ class mdi:
 
 
 class mdi_control:
-    def __init__(self, gtk, emc, labels, eventboxes):
+    def __init__(self, gtk, emc, labels, eventboxes, colors):
         self.labels = labels
         self.eventboxes = eventboxes
+        self.colors = colors
         self.numlabels = len(labels)
         self.numwords = 1
         self.selected = 0
@@ -173,16 +174,16 @@ class mdi_control:
     def not_editing(self, n):
         e = self.eventboxes[n]
         l = self.labels[n]
-        e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse("#ccc"))
-        l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#232323'))
+        e.modify_bg(self.gtk.StateFlags.NORMAL, self.colors['normal_bg'])
+        l.modify_fg(self.gtk.StateFlags.NORMAL, self.colors['normal_fg'])
 
     def editing(self, n):
         self.not_editing(self.selected)
         self.selected = n
         e = self.eventboxes[n]
         l = self.labels[n]
-        e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#0F579B'))
-        l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#fcfcfc'))
+        e.modify_bg(self.gtk.StateFlags.NORMAL, self.colors['selected_bg'])
+        l.modify_fg(self.gtk.StateFlags.NORMAL, self.colors['selected_fg'])
 
     def get_text(self):
         w = self.labels[self.selected]

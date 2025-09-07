@@ -16,7 +16,7 @@ import os
 from gi.repository import Gdk
 
 class filechooser:
-    def __init__(self, gtk, emc, labels, eventboxes, listing):
+    def __init__(self, gtk, emc, labels, eventboxes, listing, colors):
         self.labels = labels
         self.eventboxes = eventboxes
         self.numlabels = len(labels)
@@ -26,6 +26,7 @@ class filechooser:
         self.emccommand = emc.command()
         self.fileoffset = 0
         self.dir = os.path.join(os.getenv('HOME'), 'linuxcnc', 'nc_files')
+        self.colors = colors
         self.reload(0)
 
     def populate(self):
@@ -39,11 +40,11 @@ class filechooser:
                 l.set_text('')
 
             if self.selected == self.fileoffset + i:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse("#0F579B"))
-                l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#fcfcfc'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, self.colors['selected_bg'])
+                l.modify_fg(self.gtk.StateFlags.NORMAL, self.colors['selected_fg'])
             else:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#ccc'))
-                l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#232323'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, self.colors['normal_bg'])
+                l.modify_fg(self.gtk.StateFlags.NORMAL, self.colors['normal_fg'])
 
     def select(self, eventbox, event):
         n = int(self.gtk.Buildable.get_name(eventbox)[20:])

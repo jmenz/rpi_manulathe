@@ -14,7 +14,7 @@
 from gi.repository import Gdk
 
 class listing:
-    def __init__(self, gtk, emc, labels, eventboxes):
+    def __init__(self, gtk, emc, labels, eventboxes, colors):
         self.labels = labels
         self.eventboxes = eventboxes
         self.numlabels = len(labels)
@@ -27,6 +27,7 @@ class listing:
         self.program = []
         self.lines = 0
         self.max_line_length = 64
+        self.colors = colors
         self.populate()
 
     def populate(self):
@@ -44,14 +45,14 @@ class listing:
                 l.set_text('')
             
             if self.start_line == self.lineoffset + i:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse("#0F579B"))
-                l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#fcfcfc'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, self.colors['selected_bg'])
+                l.modify_fg(self.gtk.StateFlags.NORMAL, self.colors['selected_fg'])
             elif self.selected == self.lineoffset + i:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#0F579B'))
-                l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#fcfcfc'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, self.colors['selected_bg'])
+                l.modify_fg(self.gtk.StateFlags.NORMAL, self.colors['selected_fg'])
             else:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#cccccc'))
-                l.modify_fg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#232323'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, self.colors['normal_bg'])
+                l.modify_fg(self.gtk.StateFlags.NORMAL, self.colors['normal_fg'])
 
 
     def show_line(self, n):

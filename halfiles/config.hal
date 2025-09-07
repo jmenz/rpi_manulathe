@@ -39,7 +39,7 @@ addf hal_gpio.write           servo-thread
 
 
 # General status
-#net machine-on <= motion.motion-enabled => arisc.gpio.PA12-out
+net machine-on <= motion.motion-enabled #=> arisc.gpio.PA12-out
 
 # E-Stop
 net estop and.estop.out => iocontrol.0.emc-enable-in

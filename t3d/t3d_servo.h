@@ -43,7 +43,7 @@ typedef struct {
 } t3d_servo_t;
 
 // 🔹 Define Conponent params
-#define MAIN_LOOP_PERIOD 100000  // 100ms (10 Hz polling rate)
+#define MAIN_LOOP_PERIOD 10000  // 10ms (100 Hz polling rate)
 #define READ_CYCLE_PERIOD 1000000000 // Every 1 second (1,000,000,000 nanoseconds)
 #define RESET_ALARM_DELAY 500000 // 500ms
 
