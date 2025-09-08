@@ -334,7 +334,7 @@ class touchy:
         GLib.timeout_add(1500, self.fullscreen_startup)
 
         # event bindings
-        dic = {#todo rename
+        callbacks = {#todo rename
             "quit" : self.quit,
             "on_pointer_show_clicked" : self.pointer_show,
             "on_pointer_hide_clicked" : self.pointer_hide,
@@ -409,7 +409,7 @@ class touchy:
             "on_changetheme_clicked" : self.change_theme,
             "on_shut_down_clicked" : self.shut_down,
         }
-        self.wTree.connect_signals(dic)
+        self.wTree.connect_signals(callbacks)
 
         for widget in self.wTree.get_objects():
             if isinstance(widget, Gtk.Button):
