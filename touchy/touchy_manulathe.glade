@@ -1870,6 +1870,7 @@
                                             <property name="label" translatable="yes">M2</property>
                                             <property name="width_chars">20</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -1884,6 +1885,7 @@
                                             <property name="xalign">0</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -1903,6 +1905,7 @@
                                             <property name="xalign">0</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -1922,6 +1925,7 @@
                                             <property name="xalign">0</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -1941,6 +1945,7 @@
                                             <property name="xalign">0</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -1960,6 +1965,7 @@
                                             <property name="xalign">0</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -1979,6 +1985,7 @@
                                             <property name="xalign">0</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -1998,6 +2005,7 @@
                                             <property name="xalign">0</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -2017,6 +2025,7 @@
                                             <property name="xalign">0</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -2036,6 +2045,7 @@
                                             <property name="xalign">0</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -2055,6 +2065,7 @@
                                             <property name="xalign">0</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -2075,6 +2086,7 @@
                                             <property name="label" translatable="yes">M2</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -2095,6 +2107,7 @@
                                             <property name="label" translatable="yes">M2</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -2115,6 +2128,7 @@
                                             <property name="label" translatable="yes">M2</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -2135,6 +2149,7 @@
                                             <property name="label" translatable="yes">M2</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -2155,6 +2170,7 @@
                                             <property name="label" translatable="yes">M2</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -2175,6 +2191,7 @@
                                             <property name="label" translatable="yes">M2</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -2195,6 +2212,7 @@
                                             <property name="label" translatable="yes">M2</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -2215,6 +2233,7 @@
                                             <property name="label" translatable="yes">M2</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>
@@ -2235,6 +2254,7 @@
                                             <property name="label" translatable="yes">M2</property>
                                             <property name="width_chars">8</property>
                                             <property name="single_line_mode">True</property>
+                                            <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                                           </object>
                                         </child>
                                       </object>

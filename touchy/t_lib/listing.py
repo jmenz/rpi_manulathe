@@ -26,7 +26,6 @@ class listing:
         self.filename = ""
         self.program = []
         self.lines = 0
-        self.max_line_length = 64
         self.colors = colors
         self.populate()
 
@@ -36,11 +35,7 @@ class listing:
             l = self.labels[i]
             e = self.eventboxes[i]
             if i < len(program):
-                line = program[i].rstrip()
-                if len(line) > self.max_line_length:
-                    line = line[:self.max_line_length-3] + '...'
-                    # line = textwrap.fill(line, width=self.max_line_length)
-                l.set_text(line)
+                l.set_text(program[i].rstrip())
             else:
                 l.set_text('')
             

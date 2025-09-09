@@ -438,6 +438,7 @@ class touchy:
         elif (dialogResult == 1):
             Gtk.main_quit()
             subprocess.Popen('sleep 5 && systemctl reboot &', shell=True)
+            # ubprocess.Popen('(sleep 5; gpioset gpiochip0 23=0; systemctl poweroff) & ', shell=True) # for turn off pin
         elif (dialogResult == 2):
             Gtk.main_quit()
             subprocess.Popen('sleep 5 && systemctl poweroff &', shell=True)
