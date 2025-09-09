@@ -11,6 +11,7 @@
 # GNU General Public License for more details.
 
 import math
+import os
 
 from __main__ import set_active, set_text
 
@@ -19,8 +20,8 @@ class emc_control:
                 self.emc = emc
                 self.emcstat = emc.stat()
                 self.emccommand = emc.command()
-                self.masked = 0;
-                self.sb = 0;
+                self.masked = 0
+                self.sb = 0
                 self.jog_velocity = 10
                 self.mdi = 0
                 self.spindle_dir = self.emc.SPINDLE_OFF
@@ -425,7 +426,7 @@ class emc_status:
                 ovl = self.emcstat.joint[0]['override_limits']
                 set_active(self.override_limit, ovl)
 
-                set_text(self.status['file'], self.emcstat.file)
+                set_text(self.status['file'], os.path.basename(self.emcstat.file))
                 set_text(self.status['file_lines'], "%d" % len(self.listing.program))
                 set_text(self.status['line'], "%d" % self.emcstat.current_line)
                 set_text(self.status['id'], "%d" % self.emcstat.motion_id)
