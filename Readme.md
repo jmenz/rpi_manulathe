@@ -9,9 +9,11 @@ sudo nano /etc/lightdm/lightdm.conf
 ```
 In the  ```[Seat:*]``` section
 Find, uncomment, and fill with values the next lines:
+```
 autologin-user=cnc
 autologin-user-timeout=0
 autologin-session=xfce
+```
 
 ### Install custom dark theme
 ```
