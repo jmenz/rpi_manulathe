@@ -3,9 +3,6 @@
 #Disclaimer:
 This is my personal hobby project. You can use it or any of its parts at your own risk. I'm not responsible for any damage to your equipment or your injury.
 
-
-```
-
 ### Autologin:
 ```
 sudo nano /etc/lightdm/lightdm.conf
