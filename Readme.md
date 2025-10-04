@@ -6,6 +6,16 @@ This is my personal hobby project. You can use it or any of its parts at your ow
 
 ```
 
+### Autologin:
+```
+sudo nano /etc/lightdm/lightdm.conf
+```
+In the  ```[Seat:*]``` section
+Find, uncomment, and fill with values the next lines:
+autologin-user=cnc
+autologin-user-timeout=0
+autologin-session=xfce
+
 ### Install custom dark theme
 ```
 cd ~/linuxcnc/configs/orange-pi-lathe
