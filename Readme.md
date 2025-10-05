@@ -48,3 +48,4 @@ add
 ```
 toverlay=gpio-hog,gpio=21,output=1
 ```
+Check if usb_max_current_enable has value 1
