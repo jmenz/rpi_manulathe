@@ -38,6 +38,7 @@ import tempfile
 import signal
 import locale
 import time
+import subprocess
 
 empty_program = tempfile.NamedTemporaryFile()
 empty_program.write(b"%\n%\n")

@@ -37,7 +37,14 @@ Add the next command to autoload (Application->Settings->Session and Startup->Ap
 /usr/bin/linuxcnc '~/linuxcnc/configs/orange-pi-lathe/config.ini'
 ```
 
-
-
 not sure:
 sudo apt install libgpiod-dev
+
+
+### To enable pin for power latch 
+nano /boot/broadcom/config.txt
+add
+
+```
+toverlay=gpio-hog,gpio=21,output=1
+```
