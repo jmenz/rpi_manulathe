@@ -50,12 +50,13 @@ dtoverlay=gpio-hog,gpio=21,output=1
 ```
 Check if usb_max_current_enable has value 1
 
+### Mesa connection:
 
-
-mesaflash --device=7i92t --addr 192.168.1.121 --readhmid
-mesaflash --device 7I92T --addr 192.168.1.121 --write 7i92t_7I85S_1PWMBR.bin
-mesaflash --device 7I92T --addr 192.168.1.121 --reload
-
+Setup the static IP:
+in the terminal run
+``` sudo menu-config ```
+Select Networking->Edit interface
+the eth0 section should look like this:
 ```
 # Ethernet
 allow-hotplug eth0
@@ -66,5 +67,17 @@ iface eth0 inet static
         #gateway 10.0.0.1
         #dns-nameservers 8.8.8.8 8.8.4.4
 ```
+
+Test connection:
+ping 192.168.1.121
+
+Test mesa card:
+mesaflash --device=7i92t --addr 192.168.1.121 --readhmid
+
+To update FPGA firmware:
+mesaflash --device 7I92T --addr 192.168.1.121 --write 7i92t_7I85S_1PWMBR.bin
+mesaflash --device 7I92T --addr 192.168.1.121 --reload
+
+
 
 
