@@ -49,3 +49,22 @@ add
 dtoverlay=gpio-hog,gpio=21,output=1
 ```
 Check if usb_max_current_enable has value 1
+
+
+
+mesaflash --device=7i92t --addr 192.168.1.121 --readhmid
+mesaflash --device 7I92T --addr 192.168.1.121 --write 7i92t_7I85S_1PWMBR.bin
+mesaflash --device 7I92T --addr 192.168.1.121 --reload
+
+```
+# Ethernet
+allow-hotplug eth0
+#iface eth0 inet dhcp
+iface eth0 inet static
+        address 192.168.1.10
+        netmask 255.255.255.0
+        #gateway 10.0.0.1
+        #dns-nameservers 8.8.8.8 8.8.4.4
+```
+
+
