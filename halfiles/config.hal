@@ -1,7 +1,14 @@
 # load RT components
 loadrt [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
-loadrt encoder num_chan=3
+
+#Mesa connection
+loadrt hostmot2
+#loadrt hm2_eth board_ip=192.168.1.121 config="sserial_port_0=003001"
+loadrt hm2_eth board_ip=192.168.1.121 config="sserial_port_0=1xxxxx"
+setp hm2_7i92.0.watchdog.timeout_ns 2500000
+
+#spindle related
 loadrt lowpass names=lowpass.spindle-rpm
 loadrt scale names=scale.s-rpm,scale.servo
 loadrt near names=spindle-at-speed
@@ -20,13 +27,15 @@ loadrt hal_gpio inputs=GPIO4,GPIO17,GPIO27,GPIO22,GPIO10,GPIO9,GPIO11,GPIO5,GPIO
 loadusr -W t3d_servo slave=1
 
 # add RT functions to the servo thread
+addf hm2_7i92.0.read          servo-thread
+addf hal_gpio.read            servo-thread
 addf motion-command-handler   servo-thread
 addf motion-controller        servo-thread
+addf hm2_7i92.0.write         servo-thread
+addf hal_gpio.write           servo-thread
 # addf ffpv-cl.update           servo-thread
-addf hal_gpio.read            servo-thread
 
-addf encoder.update-counters  servo-thread
-addf encoder.capture-position servo-thread
+
 addf lowpass.spindle-rpm      servo-thread
 addf scale.s-rpm              servo-thread
 addf scale.servo              servo-thread
@@ -35,7 +44,6 @@ addf spindle-at-speed         servo-thread
 addf and.estop                servo-thread
 addf not.servo_alarm          servo-thread
 addf delay.servo-reset-alarm  servo-thread
-addf hal_gpio.write           servo-thread
 
 
 # General status
