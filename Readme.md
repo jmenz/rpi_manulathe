@@ -23,7 +23,7 @@ sudo sh ./install-theme.sh
 
 ### Add custom display resolution (optional)
 ```
-cp ~/linuxcnc/configs/orange-pi-lathe/additional_files/.xsessionrc ~/.xsessionrc
+cp additional_files/.xsessionrc ~/.xsessionrc
 ```
 NOTE: do this only if you don't have ~/.xsessionrc file yet, Otherwise, copy the commands.
 
@@ -34,7 +34,7 @@ It's a prepared file for 1024x600 display. If You need some other resolution, fo
 
 Add the next command to autoload (Application->Settings->Session and Startup->Application Autostart):
 ```
-/usr/bin/linuxcnc '~/linuxcnc/configs/orange-pi-lathe/config.ini'
+/usr/bin/linuxcnc '~/linuxcnc/configs/rpi_manulathe/config.ini'
 ```
 
 not sure:
@@ -42,10 +42,10 @@ sudo apt install libgpiod-dev
 
 
 ### To enable pin for power latch 
-nano /boot/broadcom/config.txt
+sudo nano /boot/broadcom/config.txt
 add
 
 ```
-toverlay=gpio-hog,gpio=21,output=1
+dtoverlay=gpio-hog,gpio=21,output=1
 ```
 Check if usb_max_current_enable has value 1

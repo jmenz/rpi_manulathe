@@ -5,7 +5,7 @@ loadrt encoder num_chan=3
 loadrt lowpass names=lowpass.spindle-rpm
 loadrt scale names=scale.s-rpm,scale.servo
 loadrt near names=spindle-at-speed
-loadrt ffpv_cl names=x
+# loadrt ffpv_cl names=x
 
 # Logic components
 loadrt mux8 count=2
@@ -22,7 +22,7 @@ loadusr -W t3d_servo slave=1
 # add RT functions to the servo thread
 addf motion-command-handler   servo-thread
 addf motion-controller        servo-thread
-addf ffpv-cl.update           servo-thread
+# addf ffpv-cl.update           servo-thread
 addf hal_gpio.read            servo-thread
 
 addf encoder.update-counters  servo-thread
