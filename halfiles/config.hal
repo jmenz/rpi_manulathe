@@ -45,21 +45,44 @@ addf and.estop                servo-thread
 addf not.servo_alarm          servo-thread
 addf delay.servo-reset-alarm  servo-thread
 
+setp hm2_7i92.0.gpio.030.is_output 0 #P10
+setp hm2_7i92.0.gpio.031.is_output 0 #P11
+setp hm2_7i92.0.gpio.032.is_output 0 #P12
+setp hm2_7i92.0.gpio.033.is_output 0 #P13
+setp hm2_7i92.0.gpio.020.is_output 0 #P15
+
+setp hm2_7i92.0.gpio.019.is_output 1 #P2
+setp hm2_7i92.0.gpio.019.invert_output 1
+
+setp hm2_7i92.0.gpio.021.is_output 1 #P3
+setp hm2_7i92.0.gpio.021.invert_output 1
+
+setp hm2_7i92.0.gpio.023.is_output 1 #P4
+setp hm2_7i92.0.gpio.023.invert_output 1
+
+setp hm2_7i92.0.gpio.025.is_output 1 #P5
+setp hm2_7i92.0.gpio.025.invert_output 1
+
+setp hm2_7i92.0.gpio.026.is_output 1 #P6
+setp hm2_7i92.0.gpio.027.is_output 1 #P7
+setp hm2_7i92.0.gpio.028.is_output 1 #P8
+setp hm2_7i92.0.gpio.029.is_output 1 #P9
+setp hm2_7i92.0.gpio.018.is_output 1 #P14
+setp hm2_7i92.0.gpio.022.is_output 1 #P16
+setp hm2_7i92.0.gpio.024.is_output 1 #P17
 
 # General status
-net machine-on <= motion.motion-enabled #=> arisc.gpio.PA12-out
+net machine-on <= motion.motion-enabled => hm2_7i92.0.gpio.019.out
 
 # E-Stop
 net estop and.estop.out => iocontrol.0.emc-enable-in
 
 #temp
-#net estop-out <= iocontrol.0.user-enable-out
-#net estop-out => iocontrol.0.emc-enable-in
 setp and.estop.in1 1
 #temp
 
 
-net hardware-estop hal_gpio.GPIO4-in => and.estop.in0
+net hardware-estop hm2_7i92.0.gpio.020.in => and.estop.in0
 
 
 #Limit Switches
