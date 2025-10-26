@@ -64,7 +64,11 @@ setp hm2_7i92.0.gpio.025.is_output 1 #P5
 setp hm2_7i92.0.gpio.025.invert_output 1
 
 setp hm2_7i92.0.gpio.026.is_output 1 #P6
+setp hm2_7i92.0.gpio.026.invert_output 1
+
 setp hm2_7i92.0.gpio.027.is_output 1 #P7
+setp hm2_7i92.0.gpio.027.invert_output 1
+
 setp hm2_7i92.0.gpio.028.is_output 1 #P8
 setp hm2_7i92.0.gpio.029.is_output 1 #P9
 setp hm2_7i92.0.gpio.018.is_output 1 #P14
@@ -72,13 +76,16 @@ setp hm2_7i92.0.gpio.022.is_output 1 #P16
 setp hm2_7i92.0.gpio.024.is_output 1 #P17
 
 # General status
-net machine-on <= motion.motion-enabled => hm2_7i92.0.gpio.019.out
+net machine-on <= motion.motion-enabled
+net machine-on => hm2_7i92.0.gpio.019.out #general 48v enable
+net machine-on => hm2_7i92.0.gpio.026.out #spindle enable
+net machine-on => hm2_7i92.0.gpio.027.out #stepper motor enable
 
 # E-Stop
 net estop and.estop.out => iocontrol.0.emc-enable-in
 
 #temp
-setp and.estop.in1 1
+#setp and.estop.in1 1
 #temp
 
 

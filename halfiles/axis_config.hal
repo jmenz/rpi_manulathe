@@ -1,64 +1,77 @@
 # axis 0 setup
 
-#X Stepgen
-# PA12:EN, PA11:DIR, PA6:STEP
-setp arisc.pwm.0.pos-scale  [JOINT_0]SCALE
-setp arisc.pwm.0.vel-scale  [JOINT_0]SCALE
-setp arisc.pwm.0.dc-cmd     0.5 # 50%
-#setp arisc.pwm.0.dc-max-t   1000
-setp arisc.pwm.0.dir-hold   50000
-setp arisc.pwm.0.dir-setup  50000
-setp arisc.pwm.0.pwm-port   0 # PA
-setp arisc.pwm.0.pwm-pin    6
-setp arisc.pwm.0.dir-port   0 # PA
-setp arisc.pwm.0.dir-pin    11
+setp hm2_7i92.0.stepgen.00.steplen        5000
+setp hm2_7i92.0.stepgen.00.stepspace      5000
+setp hm2_7i92.0.stepgen.00.maxaccel       0
+setp hm2_7i92.0.stepgen.00.control-type   0
+setp hm2_7i92.0.stepgen.00.dirhold        1000
+setp hm2_7i92.0.stepgen.00.dirsetup       1000
+setp hm2_7i92.0.stepgen.00.position-scale [JOINT_0]SCALE
 
-#X Encoder:
-setp arisc.encoder.0.pos-scale  999.6
-setp arisc.encoder.0.A-port     0   # 0=PA
-setp arisc.encoder.0.A-pin      2   # 
-setp arisc.encoder.0.B-port     2   # 2=PC
-setp arisc.encoder.0.B-pin      3   # 
-#setp arisc.encoder.0.Z-port     0   # 0=PA
-#setp arisc.encoder.0.Z-pin      21
-setp arisc.encoder.0.x4-mode    0   # The config is inversed 1 means disabled
-setp arisc.encoder.0.enable     1
-#setp arisc.encoder.0.index-enable     0
+net x-pos-cmd     joint.0.motor-pos-cmd             => hm2_7i92.0.stepgen.00.position-cmd
+net x-pos-fb      hm2_7i92.0.stepgen.00.position-fb => joint.0.motor-pos-fb
+net machine-on => hm2_7i92.0.stepgen.00.enable
 
-setp ffpv-cl.x.Kp          14
-setp ffpv-cl.x.Kv          0.013
-setp ffpv-cl.x.deadband    0.0005
-setp ffpv-cl.x.max-correction  2
-setp ffpv-cl.x.dither-amp  0.01
 
-net x-pos-cmd     joint.0.motor-pos-cmd => ffpv-cl.x.pos-cmd
-net x-vel-cmd     joint.0.vel-cmd       => ffpv-cl.x.vel-cmd
-net x-pos-fb      arisc.encoder.0.pos   => joint.0.motor-pos-fb => ffpv-cl.x.pos-fb
-net x-vel-out =>  ffpv-cl.x.vel-out     => arisc.pwm.0.vel-cmd
-net machine-on => arisc.pwm.0.enable    => ffpv-cl.x.enable
+
+# #X Stepgen
+# # PA12:EN, PA11:DIR, PA6:STEP
+# setp arisc.pwm.0.pos-scale  [JOINT_0]SCALE
+# setp arisc.pwm.0.vel-scale  [JOINT_0]SCALE
+# setp arisc.pwm.0.dc-cmd     0.5 # 50%
+# #setp arisc.pwm.0.dc-max-t   1000
+# setp arisc.pwm.0.dir-hold   50000
+# setp arisc.pwm.0.dir-setup  50000
+# setp arisc.pwm.0.pwm-port   0 # PA
+# setp arisc.pwm.0.pwm-pin    6
+# setp arisc.pwm.0.dir-port   0 # PA
+# setp arisc.pwm.0.dir-pin    11
+
+# #X Encoder:
+# setp arisc.encoder.0.pos-scale  999.6
+# setp arisc.encoder.0.A-port     0   # 0=PA
+# setp arisc.encoder.0.A-pin      2   # 
+# setp arisc.encoder.0.B-port     2   # 2=PC
+# setp arisc.encoder.0.B-pin      3   # 
+# #setp arisc.encoder.0.Z-port     0   # 0=PA
+# #setp arisc.encoder.0.Z-pin      21
+# setp arisc.encoder.0.x4-mode    0   # The config is inversed 1 means disabled
+# setp arisc.encoder.0.enable     1
+# #setp arisc.encoder.0.index-enable     0
+
+# setp ffpv-cl.x.Kp          14
+# setp ffpv-cl.x.Kv          0.013
+# setp ffpv-cl.x.deadband    0.0005
+# setp ffpv-cl.x.max-correction  2
+# setp ffpv-cl.x.dither-amp  0.01
+
+# net x-pos-cmd     joint.0.motor-pos-cmd => ffpv-cl.x.pos-cmd
+# net x-vel-cmd     joint.0.vel-cmd       => ffpv-cl.x.vel-cmd
+# net x-pos-fb      arisc.encoder.0.pos   => joint.0.motor-pos-fb => ffpv-cl.x.pos-fb
+# net x-vel-out =>  ffpv-cl.x.vel-out     => arisc.pwm.0.vel-cmd
+# net machine-on => arisc.pwm.0.enable    => ffpv-cl.x.enable
 
 #net x-pos-cmd     joint.0.motor-pos-cmd  => arisc.pwm.0.pos-cmd
 #net x-pos-fb      arisc.pwm.0.pos-fb     => joint.0.motor-pos-fb
 #net machine-on => arisc.pwm.0.enable
 
 
-# axis 1 setup
-# PA12:EN, PA13:DIR, PA14:STEP,
-setp arisc.pwm.1.pos-scale  [JOINT_1]SCALE
-setp arisc.pwm.1.vel-scale  [JOINT_1]SCALE
-setp arisc.pwm.1.dc-cmd     0.5 # 50%
-#setp arisc.pwm.1.dc-max-t   5000
-setp arisc.pwm.1.dir-hold   20000
-setp arisc.pwm.1.dir-setup  20000
-setp arisc.pwm.1.dir-invert 1
-setp arisc.pwm.1.pwm-port   0 # PA
-setp arisc.pwm.1.pwm-pin    14
-setp arisc.pwm.1.dir-port   0 # PA
-setp arisc.pwm.1.dir-pin    13
 
-net z-pos-cmd     joint.1.motor-pos-cmd  => arisc.pwm.1.pos-cmd
-net z-pos-fb      arisc.pwm.1.pos-fb     => joint.1.motor-pos-fb
-net machine-on => arisc.pwm.1.enable
+
+# axis 1 setup
+setp hm2_7i92.0.stepgen.01.steplen        5000
+setp hm2_7i92.0.stepgen.01.stepspace      5000
+setp hm2_7i92.0.stepgen.01.maxaccel       0
+setp hm2_7i92.0.stepgen.01.control-type   0
+setp hm2_7i92.0.stepgen.01.dirhold        1000
+setp hm2_7i92.0.stepgen.01.dirsetup       1000
+setp hm2_7i92.0.stepgen.01.position-scale [JOINT_1]SCALE
+setp hm2_7i92.0.stepgen.01.direction.invert_output 1
+
+net z-pos-cmd     joint.1.motor-pos-cmd             => hm2_7i92.0.stepgen.01.position-cmd
+net z-pos-fb      hm2_7i92.0.stepgen.01.position-fb => joint.1.motor-pos-fb
+net machine-on => hm2_7i92.0.stepgen.01.enable
+
 
 
 

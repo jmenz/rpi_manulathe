@@ -1,16 +1,16 @@
 # spindle setup
 
 ## SPINDLE ENCODER ##
-
-#net s-position     arisc.encoder.1.pos => spindle.0.revs
-#net s-index-enable arisc.encoder.1.index-enable <=> spindle.0.index-enable
+setp hm2_7i92.0.encoder.02.scale 8000
+net s-position     hm2_7i92.0.encoder.02.position => spindle.0.revs
+net s-index-enable hm2_7i92.0.encoder.02.index-enable <=> spindle.0.index-enable
 
 
 setp lowpass.spindle-rpm.gain 0.0100000
 setp scale.s-rpm.gain 0.01666666666666
 
 
-#net s-velocity-rpm          arisc.encoder.1.vel-rpm => lowpass.spindle-rpm.in
+net s-velocity-rpm          hm2_7i92.0.encoder.02.velocity-rpm => lowpass.spindle-rpm.in
 net s-velocity-rpm-filtered lowpass.spindle-rpm.out => scale.s-rpm.in 
 net s-velocity-rps          scale.s-rpm.out         => spindle.0.speed-in
 

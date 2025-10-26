@@ -5,20 +5,21 @@ net cycle_start hal_gpio.GPIO5-in-not => touchy.cycle-start
 net abort hal_gpio.GPIO6-in-not => touchy.abort
 #net single_block arisc.gpio.PG9-in => touchy.single-block
 
-#net s-position => touchy.spindle-pos
-#net s-velocity-rpm-filtered => touchy.spindle-velocity
+net s-position => touchy.spindle-pos
+net s-velocity-rpm-filtered => touchy.spindle-velocity
 
 ######### INDICATOR
 #net program-status-indicator touchy.status-indicator arisc.gpio.PG8-out-not
 
 ########## WHEEL
-#net touchy-wheel-counts encoder.0.counts => touchy.wheel-counts
+setp hm2_7i92.0.encoder.03.scale 4
+net touchy-wheel-counts hm2_7i92.0.encoder.03.count => touchy.wheel-counts
 
 ######### WHEELRESET
 #net wheelreset arisc.gpio.PA10-in-not touchy.wheel-reset
 
 ######### Spindle RESET
-#net reset-spindle-index touchy.reset-spindel-index arisc.encoder.1.reset
+net reset-spindle-index touchy.reset-spindel-index hm2_7i92.0.encoder.02.reset
 
 #JOISTICK
 
