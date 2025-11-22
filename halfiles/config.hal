@@ -80,17 +80,15 @@ net machine-on <= motion.motion-enabled
 net machine-on => hm2_7i92.0.gpio.019.out #general 48v enable
 net machine-on => hm2_7i92.0.gpio.026.out #spindle enable
 net machine-on => hm2_7i92.0.gpio.027.out #stepper motor enable
+net machine-on => hal_gpio.GPIO8-out #main panel indication
 
 # E-Stop
 net estop and.estop.out => iocontrol.0.emc-enable-in
 
-#temp
-#setp and.estop.in1 1
-#temp
+#net hardware-estop hm2_7i92.0.gpio.020.in => and.estop.in0
+net hardware-estop hal_gpio.GPIO13-in => and.estop.in0
 
-
-net hardware-estop hm2_7i92.0.gpio.020.in => and.estop.in0
-
+net motion-pause motion.feed-inhibit hal_gpio.GPIO6-in-not
 
 #Limit Switches
 

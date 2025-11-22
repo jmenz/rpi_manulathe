@@ -1,7 +1,7 @@
 # spindle setup
 
 ## SPINDLE ENCODER ##
-setp hm2_7i92.0.encoder.02.scale 8000
+setp hm2_7i92.0.encoder.02.scale -8000
 net s-position     hm2_7i92.0.encoder.02.position => spindle.0.revs
 net s-index-enable hm2_7i92.0.encoder.02.index-enable <=> spindle.0.index-enable
 
