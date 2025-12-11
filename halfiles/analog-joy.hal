@@ -1,0 +1,29 @@
+
+addf scale.joy-x  servo-thread
+addf scale.joy-y  servo-thread
+addf toggle.0     servo-thread
+addf mux2.0       servo-thread
+
+# --- X Axis Stick Scaling ---
+setp scale.joy-x.gain -0.60606
+setp scale.joy-x.offset 1.0
+
+# --- Z Axis Stick Scaling ---
+setp scale.joy-y.gain -0.60606
+setp scale.joy-y.offset 1.0
+
+net joy-x-raw  hm2_7i92.0.7i73.0.0.analogin1  => scale.joy-x.in
+net joy-z-raw  hm2_7i92.0.7i73.0.0.analogin0  => scale.joy-y.in
+
+net joy-x-scaled  scale.joy-x.out
+net joy-z-scaled  scale.joy-y.out
+
+net joy-btn-speed  hm2_7i92.0.7i73.0.0.input-12-not  => toggle.0.in
+net speed-mode-select  toggle.0.out  => mux2.0.sel
+
+# 3. Define your two speeds (in machine units per minute, e.g., mm/min)
+setp mux2.0.in0  100.0   # Slow Speed (State 0)
+setp mux2.0.in1  1500.0  # Fast Speed (State 1)
+
+# 4. Connect the resulting speed to the Global Jog Speed pin
+net selected-jog-speed  mux2.0.out 

@@ -852,6 +852,15 @@ class touchy:
         else:
             self.get_widget("mv").set_label("MV: %.2f" % self.mv_val)
 
+        if (self.hal.spindle_forward == 1):
+            self.spindle_forward(0)
+        
+        if (self.hal.spindle_reverse == 1):
+            self.spindle_reverse(0)
+
+        if (self.hal.spindle_stop == 1):
+            self.linuxcnc.spindle_off(0)
+
         return True
         
     def fullscreen_startup(self):

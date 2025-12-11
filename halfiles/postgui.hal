@@ -9,7 +9,7 @@ net s-position => touchy.spindle-pos
 net s-velocity-rpm-filtered => touchy.spindle-velocity
 
 ######### INDICATOR
-net program-status-indicator touchy.status-indicator hal_gpio.GPIO25-out
+net program-status-indicator touchy.status-indicator hal_gpio.GPIO7-out
 
 ########## WHEEL
 setp hm2_7i92.0.encoder.03.scale 4
@@ -30,3 +30,8 @@ net x-jog-continious-minus hal_gpio.GPIO17-in-not touchy.jog.continuous.x.negati
 #Axic Z
 net z-jog-continious-plus hal_gpio.GPIO22-in-not touchy.jog.continuous.z.positive
 net z-jog-continious-minus hal_gpio.GPIO27-in-not touchy.jog.continuous.z.negative
+
+#Spindle buttons:
+net spindle-forward hm2_7i92.0.7i73.0.0.input-20-not => touchy.spindle-forward
+net spindle-reverse hm2_7i92.0.7i73.0.0.input-19-not => touchy.spindle-reverse
+net spindle-stop hm2_7i92.0.7i73.0.0.input-21-not => touchy.spindle-stop

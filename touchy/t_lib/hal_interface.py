@@ -85,6 +85,12 @@ class hal_interface:
         self.singleblock = 0
         self.c.newpin("wheel-reset", hal.HAL_BIT, hal.HAL_IN)
         self.wheelreset = 0
+        self.c.newpin("spindle-forward", hal.HAL_BIT, hal.HAL_IN)
+        self.spindle_forward = 0
+        self.c.newpin("spindle-reverse", hal.HAL_BIT, hal.HAL_IN)
+        self.spindle_reverse = 0
+        self.c.newpin("spindle-stop", hal.HAL_BIT, hal.HAL_IN)
+        self.spindle_stop = 0
         self.c.newpin("wheel-counts", hal.HAL_S32, hal.HAL_IN)
         self.counts = 0
         self.c.newpin("spindle-pos", hal.HAL_FLOAT, hal.HAL_IN)
@@ -220,6 +226,9 @@ class hal_interface:
         self.abort = abort
 
         self.wheelreset = self.c["wheel-reset"]
+        self.spindle_forward = self.c["spindle-forward"]
+        self.spindle_reverse = self.c["spindle-reverse"]
+        self.spindle_stop = self.c["spindle-stop"]
         self.spindle_velocity = self.c["spindle-velocity"]
         if self.spindle_velocity < 100:
             self.spindle_pos = 360 * (self.c["spindle-pos"] % 1)

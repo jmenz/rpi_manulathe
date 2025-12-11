@@ -4,49 +4,28 @@ addf mux8.1                  servo-thread
 
 #Manual Encoders:
 
-#MPG X
-# PE4:A, PE5:B
-setp arisc.gpio.PE4-pull -1
-setp arisc.gpio.PE5-pull -1
-setp encoder.1.index-enable 0
-setp encoder.1.x4-mode 0
-
-net jog-wheel-x-a encoder.1.phase-A <= arisc.gpio.PE4-in
-net jog-wheel-x-b encoder.1.phase-B <= arisc.gpio.PE5-in
-
-net jog-wheel-counts-x <= encoder.1.counts
+net jog-wheel-counts-x <= hm2_7i92.0.7i73.0.0.enc1.count
 net jog-wheel-counts-x => joint.0.jog-counts => axis.x.jog-counts
 setp joint.0.jog-enable 1
 setp axis.x.jog-enable 1
 
 #Switch X
-setp arisc.gpio.PE0-pull 1
-setp arisc.gpio.PE1-pull 1
-setp arisc.gpio.PE2-pull 1
 
-setp mux8.0.in0 0.001
-setp mux8.0.in1 0.01
-setp mux8.0.in2 0.1
-setp mux8.0.in4 1
+setp mux8.0.in0 -0.001
+setp mux8.0.in1 -0.01
+setp mux8.0.in2 -0.1
+setp mux8.0.in4 -1
 
-net jog-wheel-x-scale1 mux8.0.sel0 <= arisc.gpio.PE0-in-not
-net jog-wheel-x-scale2 mux8.0.sel1 <= arisc.gpio.PE1-in-not
-net jog-wheel-x-scale3 mux8.0.sel2 <= arisc.gpio.PE2-in-not
+net jog-wheel-x-scale1 mux8.0.sel0 <= hm2_7i92.0.7i73.0.0.input-15-not
+net jog-wheel-x-scale2 mux8.0.sel1 <= hm2_7i92.0.7i73.0.0.input-14-not
+net jog-wheel-x-scale3 mux8.0.sel2 <= hm2_7i92.0.7i73.0.0.input-13-not
 
 net jog-wheel-scale-x <= axis.x.jog-scale => joint.0.jog-scale <= mux8.0.out
 
 
 #MPG Z
-# PE7:A, PE6:B
-setp arisc.gpio.PE6-pull -1
-setp arisc.gpio.PE7-pull -1
-setp encoder.2.index-enable 0
-setp encoder.2.x4-mode 0
 
-net jog-wheel-z-a encoder.2.phase-A <= arisc.gpio.PE7-in
-net jog-wheel-z-b encoder.2.phase-B <= arisc.gpio.PE6-in
-
-net jog-wheel-counts-z <= encoder.2.counts
+net jog-wheel-counts-z <= hm2_7i92.0.7i73.0.0.enc0.count
 net jog-wheel-counts-z => joint.1.jog-counts => axis.z.jog-counts
 setp joint.1.jog-enable 1
 setp axis.z.jog-enable 1
@@ -54,23 +33,13 @@ setp axis.z.jog-enable 1
 
 #Switch Z
 
-setp arisc.gpio.PE8-pull 1
-setp arisc.gpio.PE9-pull 1
-setp arisc.gpio.PE10-pull 1
+setp mux8.1.in4 1
+setp mux8.1.in2 0.1
+setp mux8.1.in1 0.01
+setp mux8.1.in0 0.001
 
-setp mux8.1.in0 1
-setp mux8.1.in1 0.1
-setp mux8.1.in2 0.01
-setp mux8.1.in4 0.001
-
-net jog-wheel-z-scale1 mux8.1.sel0 <= arisc.gpio.PE10-in-not
-net jog-wheel-z-scale2 mux8.1.sel1 <= arisc.gpio.PE9-in-not
-net jog-wheel-z-scale3 mux8.1.sel2 <= arisc.gpio.PE8-in-not
+net jog-wheel-z-scale1 mux8.1.sel0 <= hm2_7i92.0.7i73.0.0.input-16-not
+net jog-wheel-z-scale2 mux8.1.sel1 <= hm2_7i92.0.7i73.0.0.input-17-not
+net jog-wheel-z-scale3 mux8.1.sel2 <= hm2_7i92.0.7i73.0.0.input-18-not
 
 net jog-wheel-scale-z <= axis.z.jog-scale => joint.1.jog-scale <= mux8.1.out
-
-
-
-
-
-

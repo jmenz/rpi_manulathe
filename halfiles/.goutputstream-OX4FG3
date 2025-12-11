@@ -10,14 +10,12 @@ setp hm2_7i92.0.watchdog.timeout_ns 2500000
 
 #spindle related
 loadrt lowpass names=lowpass.spindle-rpm
+loadrt scale names=scale.s-rpm,scale.servo
 loadrt near names=spindle-at-speed
 # loadrt ffpv_cl names=x
 
 # Logic components
-loadrt scale names=scale.s-rpm,scale.servo,scale.joy-x,scale.joy-y
 loadrt mux8 count=2
-loadrt mux2 count=1
-loadrt toggle count=1
 loadrt and2 names=and.estop
 loadrt not names=not.servo_alarm
 loadrt timedelay names=delay.servo-reset-alarm
@@ -83,7 +81,6 @@ net machine-on => hm2_7i92.0.gpio.019.out #general 48v enable
 net machine-on => hm2_7i92.0.gpio.026.out #spindle enable
 net machine-on => hm2_7i92.0.gpio.027.out #stepper motor enable
 net machine-on => hal_gpio.GPIO8-out #main panel indication
-net machine-on => hal_gpio.GPIO24-out #spindle fan
 
 # E-Stop
 net estop and.estop.out => iocontrol.0.emc-enable-in
