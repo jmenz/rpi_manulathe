@@ -4,18 +4,39 @@
 setp hm2_7i92.0.stepgen.00.steplen        5000
 setp hm2_7i92.0.stepgen.00.stepspace      5000
 setp hm2_7i92.0.stepgen.00.maxaccel       0
-setp hm2_7i92.0.stepgen.00.control-type   0
+setp hm2_7i92.0.stepgen.00.control-type   1
 setp hm2_7i92.0.stepgen.00.dirhold        1000
 setp hm2_7i92.0.stepgen.00.dirsetup       1000
 setp hm2_7i92.0.stepgen.00.position-scale [JOINT_0]SCALE
 
-net x-pos-cmd     joint.0.motor-pos-cmd             => hm2_7i92.0.stepgen.00.position-cmd
-net x-pos-fb      hm2_7i92.0.stepgen.00.position-fb => joint.0.motor-pos-fb
-net machine-on => hm2_7i92.0.stepgen.00.enable
-
 
 #X Encoder:
-setp hm2_7i92.0.encoder.00.scale  999.6
+setp hm2_7i92.0.encoder.00.scale  -999.6
+
+setp pid.x.Pgain     1
+setp pid.x.Igain     0
+setp pid.x.Dgain     0
+setp pid.x.FF1       1
+setp pid.x.error-previous-target 0
+setp pid.x.maxerror 0
+setp pid.x.deadband 0.001
+
+# net x-pos-cmd     joint.0.motor-pos-cmd             => hm2_7i92.0.stepgen.00.position-cmd
+# net x-pos-fb      hm2_7i92.0.stepgen.00.position-fb => joint.0.motor-pos-fb
+
+
+net x-pos-cmd        joint.0.motor-pos-cmd           => pid.x.command
+net x-pos-fb         hm2_7i92.0.encoder.00.position  => joint.0.motor-pos-fb   => pid.x.feedback
+net x-vel-output     pid.x.output                    => hm2_7i92.0.stepgen.00.velocity-cmd
+
+net x-vel-commanded  joint.0.vel-cmd                 => pid.x.command-deriv
+
+net machine-on       hm2_7i92.0.stepgen.00.enable    => pid.x.enable
+
+
+
+
+
 
 
 # setp ffpv-cl.x.Kp          14

@@ -78,6 +78,11 @@ To update FPGA firmware:
 mesaflash --device 7I92T --addr 192.168.1.121 --write 7i92t_7I85S_1PWMBR.bin
 mesaflash --device 7I92T --addr 192.168.1.121 --reload
 
-
+# test display
+# set touchscreen to output
+```
+xinput list
+xinput map-to-output "ke.dei USB2IIC_CTP_CONTROL" HDMI-2
+```
 
 
