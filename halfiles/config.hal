@@ -13,8 +13,8 @@ loadrt lowpass names=lowpass.spindle-rpm
 loadrt near names=spindle-at-speed
 
 #Axis components
-# loadrt ffpv_cl names=x
-loadrt pid names=pid.x
+loadrt ffpv_cl names=x
+# loadrt pid names=pid.x
 
 # Logic components
 loadrt scale       names=scale.s-rpm,scale.servo,scale.joy-x,scale.joy-z
@@ -36,10 +36,10 @@ addf hm2_7i92.0.read          servo-thread
 addf hal_gpio.read            servo-thread
 addf motion-command-handler   servo-thread
 addf motion-controller        servo-thread
-addf pid.x.do-pid-calcs       servo-thread
+# addf pid.x.do-pid-calcs       servo-thread
+addf ffpv-cl.update           servo-thread
 addf hm2_7i92.0.write         servo-thread
 addf hal_gpio.write           servo-thread
-# addf ffpv-cl.update           servo-thread
 
 
 addf lowpass.spindle-rpm      servo-thread
@@ -87,7 +87,6 @@ net machine-on => hm2_7i92.0.gpio.019.out #general 48v enable
 net machine-on => hm2_7i92.0.gpio.026.out #spindle enable
 net machine-on => hm2_7i92.0.gpio.027.out #stepper motor enable
 net machine-on => hal_gpio.GPIO8-out #main panel indication
-net machine-on => hal_gpio.GPIO24-out #spindle fan
 
 net lubrication iocontrol.0.coolant-flood => hm2_7i92.0.gpio.023.out # oil TEMP
 

@@ -9,51 +9,49 @@ setp hm2_7i92.0.stepgen.00.dirhold        1000
 setp hm2_7i92.0.stepgen.00.dirsetup       1000
 setp hm2_7i92.0.stepgen.00.position-scale [JOINT_0]SCALE
 
-
-#X Encoder:
-setp hm2_7i92.0.encoder.00.scale  -999.6
-
-setp pid.x.Pgain     1
-setp pid.x.Igain     0
-setp pid.x.Dgain     0
-setp pid.x.FF1       1
-setp pid.x.error-previous-target 0
-setp pid.x.maxerror 0
-setp pid.x.deadband 0.001
-
-# net x-pos-cmd     joint.0.motor-pos-cmd             => hm2_7i92.0.stepgen.00.position-cmd
-# net x-pos-fb      hm2_7i92.0.stepgen.00.position-fb => joint.0.motor-pos-fb
+# --- Position mode without feedback ---
+#net x-pos-cmd     joint.0.motor-pos-cmd             => hm2_7i92.0.stepgen.00.position-cmd
+#net x-pos-fb      hm2_7i92.0.stepgen.00.position-fb => joint.0.motor-pos-fb
+#net machine-on    hm2_7i92.0.stepgen.00.enable
 
 
-net x-pos-cmd        joint.0.motor-pos-cmd           => pid.x.command
-net x-pos-fb         hm2_7i92.0.encoder.00.position  => joint.0.motor-pos-fb   => pid.x.feedback
-net x-vel-output     pid.x.output                    => hm2_7i92.0.stepgen.00.velocity-cmd
+# --- Closed loop mode ---
+#X Encoder
+setp hm2_7i92.0.encoder.00.scale  -999.8
+setp hm2_7i92.0.encoder.01.scale  -999.8
 
-net x-vel-commanded  joint.0.vel-cmd                 => pid.x.command-deriv
+#setp pid.x.Pgain     1
+#setp pid.x.Igain     0
+#setp pid.x.Dgain     0
+#setp pid.x.FF1       1
+#setp pid.x.error-previous-target 0
+#setp pid.x.maxerror 0
+#setp pid.x.deadband 0.001
 
-net machine-on       hm2_7i92.0.stepgen.00.enable    => pid.x.enable
-
-
-
+#net x-pos-cmd        joint.0.motor-pos-cmd           => pid.x.command
+#net x-pos-fb         hm2_7i92.0.encoder.00.position  => joint.0.motor-pos-fb   => pid.x.feedback
+#net x-vel-output     pid.x.output                    => hm2_7i92.0.stepgen.00.velocity-cmd
+#net x-vel-commanded  joint.0.vel-cmd                 => pid.x.command-deriv
+#net machine-on       hm2_7i92.0.stepgen.00.enable    => pid.x.enable
 
 
 
 
-# setp ffpv-cl.x.Kp          14
-# setp ffpv-cl.x.Kv          0.013
-# setp ffpv-cl.x.deadband    0.0005
-# setp ffpv-cl.x.max-correction  2
-# setp ffpv-cl.x.dither-amp  0.01
 
-# net x-pos-cmd     joint.0.motor-pos-cmd => ffpv-cl.x.pos-cmd
-# net x-vel-cmd     joint.0.vel-cmd       => ffpv-cl.x.vel-cmd
-# net x-pos-fb      arisc.encoder.0.pos   => joint.0.motor-pos-fb => ffpv-cl.x.pos-fb
-# net x-vel-out =>  ffpv-cl.x.vel-out     => arisc.pwm.0.vel-cmd
-# net machine-on => arisc.pwm.0.enable    => ffpv-cl.x.enable
 
-#net x-pos-cmd     joint.0.motor-pos-cmd  => arisc.pwm.0.pos-cmd
-#net x-pos-fb      arisc.pwm.0.pos-fb     => joint.0.motor-pos-fb
-#net machine-on => arisc.pwm.0.enable
+
+setp ffpv-cl.x.Kp          7
+setp ffpv-cl.x.Kv          -0.005
+setp ffpv-cl.x.Ks          30
+setp ffpv-cl.x.deadband    0.0005
+setp ffpv-cl.x.max-correction  2
+
+net x-pos-cmd   joint.0.motor-pos-cmd          => ffpv-cl.x.pos-cmd
+net x-vel-cmd   joint.0.vel-cmd                => ffpv-cl.x.vel-cmd
+net x-pos-fb    hm2_7i92.0.encoder.00.position => joint.0.motor-pos-fb => ffpv-cl.x.pos-fb
+net x-vel-out   ffpv-cl.x.vel-out              => hm2_7i92.0.stepgen.00.velocity-cmd
+net machine-on  hm2_7i92.0.stepgen.00.enable    => ffpv-cl.x.enable
+
 
 
 

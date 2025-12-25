@@ -39,9 +39,9 @@ typedef struct {
     // HAL Parameter Values
     hal_float_t Kp;                 // PARAMETER: Proportional gain on position error
     hal_float_t Kv;                 // PARAMETER: Gain for the velocity feedforward term
+    hal_float_t Ks;                 // PARAMETER: Gain for steady correcction
     hal_float_t deadband;           // PARAMETER: Acceptable stationary position error
     hal_float_t max_correction;     // PARAMETER: Maximum correction that can be applied to velocity
-    hal_float_t dither_amp;         // PARAMETER: Amplitude of dither for stationary hold
 
 } ffpv_cl_data;
 
@@ -84,13 +84,13 @@ static void update(void *arg, long period) {
         if (*(inst->vel_cmd) == 0.0) {
 
             if (fabs(pos_error) > inst->deadband) {
+				
+				final_correction = inst->Ks * pos_error;
+				if (inst->max_correction > 0 && fabs(final_correction) > inst->max_correction) {
+					final_correction = inst->max_correction;
+				}
 
-                long long now = rtapi_get_time();
-                double dither_component = ((now % 201) - 100) / 100.0;
-                dither_component *= inst->dither_amp;
-                double dithered_speed = fabs(correction_by_pos) + dither_component;
-                if (dithered_speed < 0) dithered_speed = 0;
-                *(inst->vel_out) = (pos_error > 0) ? dithered_speed : -dithered_speed;
+                *(inst->vel_out) = final_correction;
 
             } else {
                 *(inst->vel_out) = 0.0;
@@ -186,20 +186,20 @@ int rtapi_app_main(void) {
         if(retval < 0) goto error;
         retval = hal_param_float_newf(HAL_RW, &(data[i].Kv), comp_id, "ffpv-cl.%s.Kv", instance_name);
         if(retval < 0) goto error;
+        retval = hal_param_float_newf(HAL_RW, &(data[i].Ks), comp_id, "ffpv-cl.%s.Ks", instance_name);
+        if(retval < 0) goto error;
         retval = hal_param_float_newf(HAL_RW, &(data[i].deadband), comp_id, "ffpv-cl.%s.deadband", instance_name);
         if(retval < 0) goto error;
         retval = hal_param_float_newf(HAL_RW, &(data[i].max_correction), comp_id, "ffpv-cl.%s.max-correction", instance_name);
-        if(retval < 0) goto error;
-        retval = hal_param_float_newf(HAL_RW, &(data[i].dither_amp), comp_id, "ffpv-cl.%s.dither-amp", instance_name);
         if(retval < 0) goto error;
 
 
         // --- Set default parameter values ---
         data[i].Kp = 1.0;
         data[i].Kv = 0.0;
+        data[i].Ks = 0.0;
         data[i].deadband = 0.001; // Default to 1 micron, should be tuned
         data[i].max_correction = 0.0;
-        data[i].dither_amp = 0.0;
         *(data[i].enable) = 1;
     }
     

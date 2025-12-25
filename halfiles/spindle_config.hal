@@ -53,6 +53,9 @@ net user-request-eable iocontrol.0.user-request-enable => delay.servo-reset-alar
 net servo-alarm-reset t3d_servo.reset-alarm <= delay.servo-reset-alarm.out
 
 
+net spindle-on spindle.0.on hal_gpio.GPIO24-out #spindle fan
+
+
 ########### POSITION ##########
 
 
