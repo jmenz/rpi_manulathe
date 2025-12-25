@@ -88,8 +88,6 @@ net machine-on => hm2_7i92.0.gpio.026.out #spindle enable
 net machine-on => hm2_7i92.0.gpio.027.out #stepper motor enable
 net machine-on => hal_gpio.GPIO8-out #main panel indication
 
-net lubrication iocontrol.0.coolant-flood => hm2_7i92.0.gpio.023.out # oil TEMP
-
 # E-Stop
 net estop and.estop.out => iocontrol.0.emc-enable-in
 

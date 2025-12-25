@@ -541,17 +541,18 @@ class touchy:
 
     def update_lube_label(self):
         is_pumping = (self.hal.c["lube-pump-on"] == 1)
-        lube_btn = self.get_widget("trigger_lube_cycle")
+        new_label = "Lube Cycle"
         
         if is_pumping:
-            if lube_btn.get_label() != "PUMPING...":
-                lube_btn.set_label("PUMPING...")
+            new_label = "PUMPING..."
         else:
-            remaining = self.hal.c["lube-distance"] - self.hal.traveled_distance
-            new_label = "Lube (auto in %d mm)" % int(remaining)
+            if self.hal.c["lube-auto"]:
+                remaining = self.hal.c["lube-distance"] - self.hal.traveled_distance
+                new_label = "Lube (auto in %d mm)" % int(remaining)
 
-            if lube_btn.get_label() != new_label:
-                lube_btn.set_label(new_label)
+        lube_btn = self.get_widget("trigger_lube_cycle")
+        if lube_btn.get_label() != new_label:
+            lube_btn.set_label(new_label)
 
     def spindle_forward(self, b):
         self.linuxcnc.spindle_forward(self.spindle_speed_val)

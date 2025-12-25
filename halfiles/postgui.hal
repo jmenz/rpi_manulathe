@@ -35,3 +35,7 @@ net z-jog-continious-minus hal_gpio.GPIO27-in-not touchy.jog.continuous.z.negati
 net spindle-forward hm2_7i92.0.7i73.0.0.input-20-not => touchy.spindle-forward
 net spindle-reverse hm2_7i92.0.7i73.0.0.input-19-not => touchy.spindle-reverse
 net spindle-stop hm2_7i92.0.7i73.0.0.input-21-not => touchy.spindle-stop
+
+#Lubrication
+setp touchy.lube-auto 1
+net lubrication-pump touchy.lube-pump-on => hm2_7i92.0.gpio.023.out

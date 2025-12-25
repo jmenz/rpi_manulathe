@@ -28,6 +28,7 @@ class hal_interface:
         self.c.newpin("reset-spindel-index", hal.HAL_BIT, hal.HAL_OUT)
 
         self.c.newpin("lube-pump-on", hal.HAL_BIT, hal.HAL_OUT)
+        self.c.newpin("lube-auto", hal.HAL_BIT, hal.HAL_IN)
         self.c.newpin("lube-distance", hal.HAL_FLOAT, hal.HAL_IN)
         self.c.newpin("lube-on-time", hal.HAL_FLOAT, hal.HAL_IN)
 
@@ -110,8 +111,6 @@ class hal_interface:
         self.active = 0
         self.jogaxis(0)
 
-        self.auto_lube_enabled = gui.prefs.getpref('auto_lube_enabled', 'true', bool)
-        self.lube_on = False
         self.lube_start_time = 0
         if self.c["lube-on-time"] == 0:
             self.c["lube-on-time"] = 10
@@ -168,7 +167,7 @@ class hal_interface:
             return
 
         if self.traveled_distance >= self.c["lube-distance"]:
-            if not self.auto_lube_enabled:
+            if self.c["lube-auto"] == 0:
                 return
 
             self.run_lube_cycle()
