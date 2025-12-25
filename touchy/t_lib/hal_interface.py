@@ -13,6 +13,8 @@
 
 
 import hal
+import atexit
+import time
 
 class hal_interface:
     def __init__(self, gui, emc_control, mdi_control, emc):
@@ -24,6 +26,11 @@ class hal_interface:
         self.c = hal.component("touchy")
         self.c.newpin("status-indicator", hal.HAL_BIT, hal.HAL_OUT)
         self.c.newpin("reset-spindel-index", hal.HAL_BIT, hal.HAL_OUT)
+
+        self.c.newpin("lube-pump-on", hal.HAL_BIT, hal.HAL_OUT)
+        self.c.newpin("lube-distance", hal.HAL_FLOAT, hal.HAL_IN)
+        self.c.newpin("lube-on-time", hal.HAL_FLOAT, hal.HAL_IN)
+
         self.c.newpin("jog.active", hal.HAL_BIT, hal.HAL_OUT)
         self.c.newpin("jog.wheel.x", hal.HAL_BIT, hal.HAL_OUT)
         self.c.newpin("jog.wheel.y", hal.HAL_BIT, hal.HAL_OUT)
@@ -102,7 +109,22 @@ class hal_interface:
         self.c.ready()
         self.active = 0
         self.jogaxis(0)
-        
+
+        self.lube_enabled = gui.prefs.getpref('lube_enabled', 'true', bool)
+        self.lube_on = False
+        self.lube_start_time = 0
+        if self.c["lube-on-time"] == 0:
+            self.c["lube-on-time"] = 10
+
+        if self.c["lube-distance"] == 0:
+            self.c["lube-distance"] = 500
+
+        self.emc_stat.poll()
+        self.traveled_distane = gui.prefs.getpref('travel_dist', 0, float)
+        self.prev_joint_pos = list(self.emc_stat.joint_actual_position)
+
+        atexit.register(self.save_travel_distance)
+
     def wheel(self):
         counts = self.c["wheel-counts"]/4
         ret = counts - self.counts
@@ -128,6 +150,36 @@ class hal_interface:
 
     def jogactive(self, active):
         self.active = active
+
+    def update_traveled_distance(self):
+        for axis, position in enumerate(self.emc_stat.joint_actual_position):
+            dist = abs(self.prev_joint_pos[axis] - position)
+            self.prev_joint_pos[axis] = position
+            if dist > 0.001 and dist < 10:
+                self.traveled_distane += dist
+
+    def save_travel_distance(self):
+        self.gui.prefs.putpref('travel_dist', self.traveled_distane, float)
+
+    def lube_periodic(self):
+        if self.c["lube-pump-on"] == 1:
+            if time.time() - self.lube_start_time > self.c["lube-on-time"]:
+                self.lube_pump_on = False
+                self.c["lube-pump-on"] = 0
+            return
+
+        if self.traveled_distane >= self.c["lube-distance"]:
+            self.run_lube_cycle()
+
+    def run_lube_cycle(self):
+        if not self.lube_enabled:
+            return
+        
+        self.lube_start_time = time.time()
+        self.c["lube-pump-on"] = 1
+        self.traveled_distane = 0
+        self.save_travel_distance()
+
 
     def periodic(self, mdi_mode):
         # edge detection
@@ -248,3 +300,6 @@ class hal_interface:
             else:
                 # nothing is happening
                 self.c["status-indicator"] = 0
+
+        self.update_traveled_distance()
+        self.lube_periodic()

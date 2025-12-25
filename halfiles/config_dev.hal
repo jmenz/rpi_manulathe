@@ -1,0 +1,75 @@
+# load RT components
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+
+#spindle related
+loadrt lowpass names=lowpass.spindle-rpm
+loadrt near names=spindle-at-speed
+
+
+# Logic components
+loadrt scale       names=scale.s-rpm,scale.servo,scale.joy-x,scale.joy-z
+loadrt mux8        names=mux8.mpg-x,mux8.mpg-z
+loadrt and2        names=and.estop
+loadrt not         names=not.servo_alarm
+loadrt timedelay   names=delay.servo-reset-alarm
+
+loadrt jog_mixer  names=mix.x,mix.z
+
+loadrt hal_gpio inputs=GPIO4,GPIO17,GPIO27,GPIO22,GPIO10,GPIO9,GPIO11,GPIO5,GPIO6,GPIO13,GPIO19,GPIO26 \
+                outputs=GPIO14,GPIO15,GPIO18,GPIO23,GPIO24,GPIO25,GPIO7,GPIO8 \
+#                invert=GPIO20 \
+
+loadusr -W t3d_servo slave=1
+
+# add RT functions to the servo thread
+addf hal_gpio.read            servo-thread
+addf motion-command-handler   servo-thread
+addf motion-controller        servo-thread
+addf hal_gpio.write           servo-thread
+
+addf lowpass.spindle-rpm      servo-thread
+addf scale.s-rpm              servo-thread
+addf scale.servo              servo-thread
+addf spindle-at-speed         servo-thread
+
+
+addf and.estop                servo-thread
+addf not.servo_alarm          servo-thread
+addf delay.servo-reset-alarm  servo-thread
+
+
+# General status
+net machine-on <= motion.motion-enabled
+# net machine-on => hm2_7i92.0.gpio.019.out #general 48v enable
+# net machine-on => hm2_7i92.0.gpio.026.out #spindle enable
+# net machine-on => hm2_7i92.0.gpio.027.out #stepper motor enable
+net machine-on => hal_gpio.GPIO8-out #main panel indication
+net machine-on => hal_gpio.GPIO24-out #spindle fan
+
+# net lubrication iocontrol.0.coolant-flood => hm2_7i92.0.gpio.023.out # oil TEMP
+
+# E-Stop
+net estop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
+
+# net hardware-estop hm2_7i92.0.gpio.020.in => and.estop.in0
+
+net motion-pause motion.feed-inhibit hal_gpio.GPIO6-in-not
+
+#Limit Switches
+
+
+#Manual tool change
+loadusr -W hal_manualtoolchange
+net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
+net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
+net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+
+
+
+net x-feedbck-loop joint.0.motor-pos-cmd => joint.0.motor-pos-fb 
+net y-feedbck-loop joint.1.motor-pos-cmd => joint.1.motor-pos-fb
+net spindle-feedback-loop spindle.0.speed-out => spindle.0.speed-in
+
+setp spindle.0.at-speed 1
