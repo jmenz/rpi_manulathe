@@ -120,7 +120,7 @@ class hal_interface:
             self.c["lube-distance"] = 500
 
         self.emc_stat.poll()
-        self.traveled_distane = gui.prefs.getpref('travel_dist', 0, float)
+        self.traveled_distance = gui.prefs.getpref('travel_dist', 0, float)
         self.prev_joint_pos = list(self.emc_stat.joint_actual_position)
 
         atexit.register(self.save_travel_distance)
@@ -155,20 +155,19 @@ class hal_interface:
         for axis, position in enumerate(self.emc_stat.joint_actual_position):
             dist = abs(self.prev_joint_pos[axis] - position)
             self.prev_joint_pos[axis] = position
-            if dist > 0.001 and dist < 10:
-                self.traveled_distane += dist
+            if dist > 0.001 and dist < 30:
+                self.traveled_distance += dist
 
     def save_travel_distance(self):
-        self.gui.prefs.putpref('travel_dist', self.traveled_distane, float)
+        self.gui.prefs.putpref('travel_dist', self.traveled_distance, float)
 
     def lube_periodic(self):
         if self.c["lube-pump-on"] == 1:
             if time.time() - self.lube_start_time > self.c["lube-on-time"]:
-                self.lube_pump_on = False
                 self.c["lube-pump-on"] = 0
             return
 
-        if self.traveled_distane >= self.c["lube-distance"]:
+        if self.traveled_distance >= self.c["lube-distance"]:
             self.run_lube_cycle()
 
     def run_lube_cycle(self):
@@ -177,7 +176,7 @@ class hal_interface:
         
         self.lube_start_time = time.time()
         self.c["lube-pump-on"] = 1
-        self.traveled_distane = 0
+        self.traveled_distance = 0
         self.save_travel_distance()
 
 
