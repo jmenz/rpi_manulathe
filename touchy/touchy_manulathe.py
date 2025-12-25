@@ -400,6 +400,7 @@ class touchy:
             "on_scrolling_clicked" : self.scrolling,
             "on_override_limits_clicked" : self.linuxcnc.override_limits,
             "on_reset_spinde_index_clicked" : self.reset_spindle_index,
+            "on_trigger_lube_cycle_clicked" : self.trigger_lube_cycle,
             "on_spindle_forward_clicked" : self.spindle_forward,
             "on_spindle_off_clicked" : self.linuxcnc.spindle_off,
             "on_spindle_reverse_clicked" : self.spindle_reverse,
@@ -535,6 +536,9 @@ class touchy:
     def reset_spindle_index(self, b):
         self.hal.resetSpindel(1)
 
+    def trigger_lube_cycle(self, b):
+        self.hal.run_lube_cycle()
+
     def spindle_forward(self, b):
         self.linuxcnc.spindle_forward(self.spindle_speed_val)
 
@@ -633,7 +637,7 @@ class touchy:
                   "dro_commanded", "dro_actual", "dro_inch", "dro_mm",
                   "reload_tooltable", "opstop_on", "opstop_off", "blockdel_on", "blockdel_off",
                   "pointer_hide", "pointer_show", "fullscreen_on", "fullscreen_off",
-                  "toolset_workpiece", "toolset_fixture", "change_theme", "reset_spinde_index", "shut_down"]:
+                  "toolset_workpiece", "toolset_fixture", "change_theme", "reset_spinde_index", "trigger_lube_cycle", "shut_down"]:
             w = self.get_widget(i)
             if w:
                 w.override_font(self.control_font)
