@@ -110,14 +110,14 @@ class hal_interface:
         self.active = 0
         self.jogaxis(0)
 
-        self.lube_enabled = gui.prefs.getpref('lube_enabled', 'true', bool)
+        self.auto_lube_enabled = gui.prefs.getpref('auto_lube_enabled', 'true', bool)
         self.lube_on = False
         self.lube_start_time = 0
         if self.c["lube-on-time"] == 0:
             self.c["lube-on-time"] = 10
 
         if self.c["lube-distance"] == 0:
-            self.c["lube-distance"] = 500
+            self.c["lube-distance"] = 5000
 
         self.emc_stat.poll()
         self.traveled_distance = gui.prefs.getpref('travel_dist', 0, float)
@@ -168,12 +168,12 @@ class hal_interface:
             return
 
         if self.traveled_distance >= self.c["lube-distance"]:
+            if not self.auto_lube_enabled:
+                return
+
             self.run_lube_cycle()
 
     def run_lube_cycle(self):
-        if not self.lube_enabled:
-            return
-        
         self.lube_start_time = time.time()
         self.c["lube-pump-on"] = 1
         self.traveled_distance = 0
