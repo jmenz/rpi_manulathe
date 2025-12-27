@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+  <labelframe text="Joystick (Feed)">
+    <font>("Helvetica",12)</font>
+    <hbox>
+        <scale>
+          <halpin>"joystick-val"</halpin>
+          <resolution>0.01</resolution>
+          <min_>-1.0</min_>
+          <max_>1.0</max_>
+          <initval>0.0</initval>
+          <width>50</width>
+        </scale>
+    </hbox>
+  </labelframe>
+
+  <labelframe text="Hand Turn Spindle">
+    <font>("Helvetica",12)</font>
+    <hbox>
+        <scale>
+          <halpin>"hand-turn"</halpin>
+          <resolution>0.0001</resolution>
+          <min_>0.0</min_>
+          <max_>2.0</max_>
+          <initval>0.0</initval>
+          <width>50</width>
+        </scale>
+    </hbox>
+  </labelframe>
+  <labelframe text="Cycle Control">
+    <font>("Helvetica",12)</font>
+    <hbox>
+        <button>
+            <halpin>"cycle-start"</halpin>
+            <text>"Start"</text>
+            <font>("Helvetica",14)</font>
+            <bg>"#90EE90"</bg> <width>6</width>
+        </button>
+        
+        <label><text>" "</text></label>
+        
+        <button>
+            <halpin>"cycle-stop"</halpin>
+            <text>"Stop"</text>
+            <font>("Helvetica",14)</font>
+            <bg>"#FF7F7F"</bg> <width>6</width>
+        </button>
+    </hbox>
+  </labelframe>
+  <labelframe text="Manual Feed">
+    <font>("Helvetica",12)</font>
+    <hbox>
+        <button>
+            <halpin>"feed-negative"</halpin>
+            <text>"Feed -"</text>
+            <font>("Helvetica",14)</font>
+            <bg>"#9098ee"</bg> <width>6</width>
+        </button>
+        
+        <label><text>" "</text></label>
+        
+        <button>
+            <halpin>"feed-positive"</halpin>
+            <text>"Feed +"</text>
+            <font>("Helvetica",14)</font>
+            <bg>"#9098ee"</bg> <width>6</width>
+        </button>
+    </hbox>
+  </labelframe>
+</pyvcp>

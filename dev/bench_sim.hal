@@ -1,0 +1,13 @@
+# 1. Load the PyVCP Panel
+loadusr -Wn bench_test pyvcp -c bench_test dev/bench_test.xml
+
+# 2. Connect "Virtual Joystick" to your Mixer Component
+# The Scale in PyVCP creates a float pin with suffix "-f"
+net joy-sim-input  bench_test.joystick-val-f  => mix.x.joy-in
+net joy-sim-input  => mix.z.joy-in
+
+# 3. Connect "Virtual Spindle" (Handwheel) directly to feedback
+# This tricks LinuxCNC and your component into thinking the spindle is turning
+# net spindle-pos    bench_test.hand-turn-f     => spindle.0.revs
+# net spindle-pos    => mix.x.spindle-revs
+# net spindle-pos    => mix.z.spindle-revs

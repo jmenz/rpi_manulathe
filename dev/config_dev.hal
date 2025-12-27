@@ -14,7 +14,7 @@ loadrt and2        names=and.estop
 loadrt not         names=not.servo_alarm
 loadrt timedelay   names=delay.servo-reset-alarm
 
-loadrt jog_mixer  names=mix.x,mix.z
+loadrt jog_feed_controller names=mix.x
 
 loadrt hal_gpio inputs=GPIO4,GPIO17,GPIO27,GPIO22,GPIO10,GPIO9,GPIO11,GPIO5,GPIO6,GPIO13,GPIO19,GPIO26 \
                 outputs=GPIO14,GPIO15,GPIO18,GPIO23,GPIO24,GPIO25,GPIO7,GPIO8 \
@@ -73,3 +73,48 @@ net y-feedbck-loop joint.1.motor-pos-cmd => joint.1.motor-pos-fb
 net spindle-feedback-loop spindle.0.speed-out => spindle.0.speed-in
 
 setp spindle.0.at-speed 1
+
+
+
+
+loadusr -Wn bench_test pyvcp -c bench_test dev/bench_test.xml
+
+addf mux8.mpg-x     servo-thread
+addf mux8.mpg-z     servo-thread
+addf scale.joy-x    servo-thread
+addf scale.joy-z    servo-thread
+addf mix.x.update   servo-thread
+
+#Manual Encoders:
+
+#MPG x
+setp joint.0.jog-enable 1
+setp axis.x.jog-enable 1
+
+#Switch X
+# resolution in 0.1 of a uM
+setp mux8.mpg-x.in0  -10
+setp mux8.mpg-x.in1  -100
+setp mux8.mpg-x.in2  -1000
+setp mux8.mpg-x.in4  -10000
+
+setp axis.x.jog-scale 0.0001 # 0.1 um per tic
+setp joint.0.jog-scale 0.0001
+setp mix.x.jog-scale 0.0001
+
+net mpg-x-scale-val mux8.mpg-x.out  => mix.x.mpg-scale
+
+net spindle-pos    bench_test.hand-turn-f     => spindle.0.revs
+net spindle-pos    => mix.x.spindle-pos
+
+net joy-x-scaled    bench_test.joystick-val-f   => mix.x.joy-in
+
+# net feed-x-negative    bench_test.feed-negative   => mix.x.feed-negative
+# net feed-x-positive    bench_test.feed-positive   => mix.x.feed-positive
+setp mix.x.feed-per-rev 0.1
+net x-jog-final     mix.x.counts-out => joint.0.jog-counts => axis.x.jog-counts
+net x-jog-mode      mix.x.vel-mode-out   => joint.0.jog-vel-mode => axis.x.jog-vel-mode
+
+setp mix.x.joy-speed-slow  50   # Feed mode
+setp mix.x.joy-speed-fast  300  # Fast jog
+setp mix.x.joy-deadband 0.15
