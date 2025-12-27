@@ -128,16 +128,16 @@ static int getFeedDirection(comp_data_t *data) {
 }
 
 static double getFeedValue(comp_data_t *data) {
+
+    if (data->jog_scale < 0.0000001) return 0.0;
+
+    double current_spindle_pos = *(data->spindle_pos);
+    double spindle_rev = current_spindle_pos - data->last_spindle_pos;
+    data->last_spindle_pos = current_spindle_pos;
+
     int feed_dir = getFeedDirection(data);
-
     if (feed_dir != 0) {
-        double current_spindle_pos = *(data->spindle_pos);
-
-        double spindle_rev = current_spindle_pos - data->last_spindle_pos;
-
-        data->last_spindle_pos = current_spindle_pos;
-        
-        return spindle_rev * *(data->feed_per_rev) * (1 / data->jog_scale / 1) * feed_dir;
+        return spindle_rev * *(data->feed_per_rev) * (1 / data->jog_scale) * feed_dir;
     }
 
     return 0;
