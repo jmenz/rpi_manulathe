@@ -23,7 +23,7 @@ loadrt and2        names=and.estop
 loadrt not         names=not.servo_alarm
 loadrt timedelay   names=delay.servo-reset-alarm
 
-loadrt jog_mixer  names=mix.x,mix.z
+loadrt jog_feed_controller names=mix.x,mix.z
 
 loadrt hal_gpio inputs=GPIO4,GPIO17,GPIO27,GPIO22,GPIO10,GPIO9,GPIO11,GPIO5,GPIO6,GPIO13,GPIO19,GPIO26 \
                 outputs=GPIO14,GPIO15,GPIO18,GPIO23,GPIO24,GPIO25,GPIO7,GPIO8 \

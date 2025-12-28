@@ -1,10 +1,10 @@
 
-addf mux8.mpg-x                  servo-thread
-addf mux8.mpg-z                  servo-thread
-addf scale.joy-x servo-thread
-addf scale.joy-z servo-thread
-addf mix.x       servo-thread
-addf mix.z       servo-thread
+addf mux8.mpg-x         servo-thread
+addf mux8.mpg-z         servo-thread
+addf scale.joy-x        servo-thread
+addf scale.joy-z        servo-thread
+addf mix.x.update       servo-thread
+addf mix.z.update       servo-thread
 
 #Manual Encoders:
 
@@ -13,17 +13,18 @@ setp joint.0.jog-enable 1
 setp axis.x.jog-enable 1
 
 #Switch X
-setp mux8.mpg-x.in0  -1
-setp mux8.mpg-x.in1  -10
-setp mux8.mpg-x.in2  -100
-setp mux8.mpg-x.in4  -1000
+setp mux8.mpg-x.in0  -10
+setp mux8.mpg-x.in1  -100
+setp mux8.mpg-x.in2  -1000
+setp mux8.mpg-x.in4  -10000
 
 net jog-wheel-x-scale1 mux8.mpg-x.sel0 <= hm2_7i92.0.7i73.0.0.input-15-not
 net jog-wheel-x-scale2 mux8.mpg-x.sel1 <= hm2_7i92.0.7i73.0.0.input-14-not
 net jog-wheel-x-scale3 mux8.mpg-x.sel2 <= hm2_7i92.0.7i73.0.0.input-13-not
 
-setp axis.x.jog-scale 0.001
-setp joint.0.jog-scale 0.001
+setp axis.x.jog-scale  0.0001
+setp joint.0.jog-scale 0.0001
+setp mix.x.jog-scale   0.0001
 
 setp scale.joy-x.gain   -0.606
 setp scale.joy-x.offset 1.0
@@ -34,12 +35,19 @@ net joy-btn         hm2_7i92.0.7i73.0.0.input-12-not  => mix.x.joy-btn
 net mpg-x-raw       hm2_7i92.0.7i73.0.0.enc1.count    => mix.x.mpg-in
 net mpg-x-scale-val mux8.mpg-x.out                    => mix.x.mpg-scale
 
+net s-position    => mix.x.spindle-pos
+
 net x-jog-final     mix.x.counts-out => joint.0.jog-counts => axis.x.jog-counts
 net x-jog-mode      mix.x.vel-mode-out   => joint.0.jog-vel-mode => axis.x.jog-vel-mode
 
-setp mix.x.joy-speed-slow  5   # Feed mode
-setp mix.x.joy-speed-fast  30  # Fast jog
-setp mix.x.joy-deadband 0.15
+net x-manual-feed-positive hal_gpio.GPIO4-in-not  => mix.x.feed-positive
+net x-manual-feed-negative hal_gpio.GPIO17-in-not => mix.x.feed-negative
+
+setp mix.x.feed-per-rev 0.1 #temp
+
+setp mix.x.joy-speed-slow  50   # Feed mode
+setp mix.x.joy-speed-fast  300  # Fast jog
+setp mix.x.joy-deadband 0.2
 
 
 #MPG Z
@@ -47,17 +55,18 @@ setp joint.1.jog-enable 1
 setp axis.z.jog-enable 1
 
 #Switch Z
-setp mux8.mpg-z.in4 1000
-setp mux8.mpg-z.in2 100
-setp mux8.mpg-z.in1 10
-setp mux8.mpg-z.in0 1
+setp mux8.mpg-z.in4 10000
+setp mux8.mpg-z.in2 1000
+setp mux8.mpg-z.in1 100
+setp mux8.mpg-z.in0 10
 
 net jog-wheel-z-scale1 mux8.mpg-z.sel0 <= hm2_7i92.0.7i73.0.0.input-16-not
 net jog-wheel-z-scale2 mux8.mpg-z.sel1 <= hm2_7i92.0.7i73.0.0.input-17-not
 net jog-wheel-z-scale3 mux8.mpg-z.sel2 <= hm2_7i92.0.7i73.0.0.input-18-not
 
-setp axis.z.jog-scale 0.001
-setp joint.1.jog-scale 0.001
+setp axis.z.jog-scale 0.0001
+setp joint.1.jog-scale 0.0001
+setp mix.z.jog-scale 0.0001
 
 setp scale.joy-z.gain   -0.606
 setp scale.joy-z.offset 1.0
@@ -68,9 +77,16 @@ net joy-btn      => mix.z.joy-btn
 net mpg-z-raw       hm2_7i92.0.7i73.0.0.enc0.count    => mix.z.mpg-in
 net mpg-z-scale-val mux8.mpg-z.out                    => mix.z.mpg-scale
 
+net s-position    => mix.z.spindle-pos
+
 net z-jog-final     mix.z.counts-out => joint.1.jog-counts => axis.z.jog-counts
 net z-jog-mode      mix.z.vel-mode-out   => joint.1.jog-vel-mode => axis.z.jog-vel-mode
 
-setp mix.z.joy-speed-slow  5    # Feed mode
-setp mix.z.joy-speed-fast  100  # Fast jog
-setp mix.z.joy-deadband 0.15
+net z-manual-feed-positive hal_gpio.GPIO22-in-not => mix.z.feed-positive
+net z-manual-feed-negative hal_gpio.GPIO27-in-not => mix.z.feed-negative
+
+setp mix.z.feed-per-rev 0.1 #temp
+
+setp mix.z.joy-speed-slow  50    # Feed mode
+setp mix.z.joy-speed-fast  1000  # Fast jog
+setp mix.z.joy-deadband 0.2

@@ -24,12 +24,12 @@ net reset-spindle-index touchy.reset-spindel-index hm2_7i92.0.encoder.02.reset
 #JOISTICK
 
 #Axic X
-net x-jog-continious-plus hal_gpio.GPIO4-in-not touchy.jog.continuous.x.positive
-net x-jog-continious-minus hal_gpio.GPIO17-in-not touchy.jog.continuous.x.negative
+#net x-jog-continious-plus hal_gpio.GPIO4-in-not touchy.jog.continuous.x.positive
+#net x-jog-continious-minus hal_gpio.GPIO17-in-not touchy.jog.continuous.x.negative
 
 #Axic Z
-net z-jog-continious-plus hal_gpio.GPIO22-in-not touchy.jog.continuous.z.positive
-net z-jog-continious-minus hal_gpio.GPIO27-in-not touchy.jog.continuous.z.negative
+#net z-jog-continious-plus hal_gpio.GPIO22-in-not touchy.jog.continuous.z.positive
+#net z-jog-continious-minus hal_gpio.GPIO27-in-not touchy.jog.continuous.z.negative
 
 #Spindle buttons:
 net spindle-forward hm2_7i92.0.7i73.0.0.input-20-not => touchy.spindle-forward
