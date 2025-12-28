@@ -5,6 +5,7 @@ net cycle_start hal_gpio.GPIO10-in-not => touchy.cycle-start
 net abort hal_gpio.GPIO9-in-not => touchy.abort
 net single_block hal_gpio.GPIO11-in-not => touchy.single-block
 
+######## Spindle speed display
 net s-position => touchy.spindle-pos
 net s-velocity-rpm-filtered => touchy.spindle-velocity
 
@@ -21,16 +22,6 @@ net wheelreset hal_gpio.GPIO5-in-not touchy.wheel-reset
 ######### Spindle RESET
 net reset-spindle-index touchy.reset-spindel-index hm2_7i92.0.encoder.02.reset
 
-#JOISTICK
-
-#Axic X
-#net x-jog-continious-plus hal_gpio.GPIO4-in-not touchy.jog.continuous.x.positive
-#net x-jog-continious-minus hal_gpio.GPIO17-in-not touchy.jog.continuous.x.negative
-
-#Axic Z
-#net z-jog-continious-plus hal_gpio.GPIO22-in-not touchy.jog.continuous.z.positive
-#net z-jog-continious-minus hal_gpio.GPIO27-in-not touchy.jog.continuous.z.negative
-
 #Spindle buttons:
 net spindle-forward hm2_7i92.0.7i73.0.0.input-20-not => touchy.spindle-forward
 net spindle-reverse hm2_7i92.0.7i73.0.0.input-19-not => touchy.spindle-reverse
@@ -40,3 +31,6 @@ net spindle-stop hm2_7i92.0.7i73.0.0.input-21-not => touchy.spindle-stop
 setp touchy.lube-auto 1
 setp touchy.lube-distance 8000
 net lubrication-pump touchy.lube-pump-on => hm2_7i92.0.gpio.023.out
+
+# Manual feed
+net manual-feed-rate touchy.manual-feedrate

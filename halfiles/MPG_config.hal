@@ -43,7 +43,7 @@ net x-jog-mode      mix.x.vel-mode-out   => joint.0.jog-vel-mode => axis.x.jog-v
 net x-manual-feed-positive hal_gpio.GPIO4-in-not  => mix.x.feed-positive
 net x-manual-feed-negative hal_gpio.GPIO17-in-not => mix.x.feed-negative
 
-setp mix.x.feed-per-rev 0.1 #temp
+net manual-feed-rate mix.x.feed-per-rev
 
 setp mix.x.joy-speed-slow  50   # Feed mode
 setp mix.x.joy-speed-fast  300  # Fast jog
@@ -85,7 +85,7 @@ net z-jog-mode      mix.z.vel-mode-out   => joint.1.jog-vel-mode => axis.z.jog-v
 net z-manual-feed-positive hal_gpio.GPIO22-in-not => mix.z.feed-positive
 net z-manual-feed-negative hal_gpio.GPIO27-in-not => mix.z.feed-negative
 
-setp mix.z.feed-per-rev 0.1 #temp
+net manual-feed-rate mix.z.feed-per-rev
 
 setp mix.z.joy-speed-slow  50    # Feed mode
 setp mix.z.joy-speed-fast  1000  # Fast jog

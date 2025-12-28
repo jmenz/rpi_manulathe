@@ -3730,6 +3730,20 @@
                           </packing>
                         </child>
                         <child>
+                          <object class="GtkToggleButton" id="manual_feed">
+                            <property name="label" translatable="yes">Feed: 0.1</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="focus_on_click">False</property>
+                            <signal name="clicked" handler="on_manual_feed_clicked"/>
+                          </object>
+                          <packing>
+                            <property name="position">4</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkToggleButton" id="scrolling">
                             <property name="label" translatable="yes">Start Point</property>
                             <property name="visible">True</property>
@@ -3740,7 +3754,7 @@
                             <signal name="clicked" handler="on_scrolling_clicked"/>
                           </object>
                           <packing>
-                            <property name="position">4</property>
+                            <property name="position">5</property>
                           </packing>
                         </child>
                         <child>
@@ -3754,7 +3768,7 @@
                             <signal name="clicked" handler="on_manual_clicked"/>
                           </object>
                           <packing>
-                            <property name="position">5</property>
+                            <property name="position">6</property>
                           </packing>
                         </child>
                       </object>

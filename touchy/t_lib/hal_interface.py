@@ -105,8 +105,10 @@ class hal_interface:
         self.spindle_pos = 0
         self.c.newpin("spindle-velocity", hal.HAL_FLOAT, hal.HAL_IN)
         self.spindle_velocity = 0
+        self.c.newpin("manual-feedrate", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.manual_feedrate = 0
 
-        self.jog_velocity = 1
+
         self.c.ready()
         self.active = 0
         self.jogaxis(0)
@@ -284,6 +286,8 @@ class hal_interface:
             self.spindle_pos = 360 * (self.c["spindle-pos"] % 1)
         else:
             self.spindle_pos = 0
+
+        self.c["manual-feedrate"] = self.manual_feedrate
 
         self.emc_stat.poll()
         self.c["jog.active"] = self.emc_stat.task_mode == self.emc.MODE_MANUAL

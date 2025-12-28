@@ -136,8 +136,8 @@ class touchy:
         self.g10l11 = 1
 
         self.prefs = preferences.preferences()
-        self.mv_val = self.prefs.getpref('maxvel', 100, int)
-        self.jog_vel_val = self.prefs.getpref('maxvel', 100, int)
+        self.mv_val = self.prefs.getpref('maxvel', 40, int)
+        self.manual_feedrate_val = self.prefs.getpref('manual_feed', 0.1, float)
         self.control_font_name = self.prefs.getpref('control_font', 'Sans 18', str)
         self.dro_font_name = self.prefs.getpref('dro_font', 'FreeMono 10 Pitch Bold 16', str)
         self.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
@@ -152,6 +152,8 @@ class touchy:
 
         self.velocity_limit = float(self.ini.find("DISPLAY", "MAX_LINEAR_VELOCITY"))
         self.default_velocity = float(self.ini.find("DISPLAY", "DEFAULT_LINEAR_VELOCITY"))
+        self.default_feedrate = float(self.ini.find("DISPLAY", "DEFAULT_FEED_PER_REV"))
+        self.max_feedrate = float(self.ini.find("DISPLAY", "MAX_FEED_PER_REV"))
 
         self.spindle_default_speed = float(self.ini.find("DISPLAY", "SPINDLE_DEFAULT_SPEED"))
         self.spindle_increment = float(self.ini.find("DISPLAY", "SPINDLE_INCREMENT"))
@@ -231,8 +233,9 @@ class touchy:
 
         # emc interface
         self.linuxcnc = emc_interface.emc_control(linuxcnc, self.listing, self.get_widget("error"))
-        self.linuxcnc.continuous_jog_velocity(self.jog_vel_val)
+        self.linuxcnc.continuous_jog_velocity(self.mv_val)
         self.hal = hal_interface.hal_interface(self, self.linuxcnc, self.mdi_control, linuxcnc)
+        self.hal.manual_feedrate = self.manual_feedrate_val
 
         # silly file chooser
         filechooser_labels = []
@@ -396,6 +399,7 @@ class touchy:
             "on_so_clicked" : self.so,
             "on_rpm_clicked" : self.rpm,
             "on_mv_clicked" : self.mv,
+            "on_manual_feed_clicked" : self.manual_feed,
             "on_manual_clicked" : self.set_manual,
             "on_scrolling_clicked" : self.scrolling,
             "on_override_limits_clicked" : self.linuxcnc.override_limits,
@@ -421,8 +425,7 @@ class touchy:
         atexit.register(self.kill_dynamic_childs)
         self.set_dynamic_tabs()
 
-        atexit.register(self.save_maxvel_pref)
-        atexit.register(self.save_spindle_speed)
+        atexit.register(self.save_prefs)
 
         self.setfont()
 
@@ -586,6 +589,10 @@ class touchy:
         if self.radiobutton_mask: return
         self.wheel = "mv"
 
+    def manual_feed(self, b):
+        if self.radiobutton_mask: return
+        self.wheel = "manual_feed"
+
     def scrolling(self, b):
         if self.radiobutton_mask: return
         self.get_widget('notebook1').set_current_page(3)
@@ -646,7 +653,7 @@ class touchy:
                   "minus", "decimal", "flood_on", "flood_off", "mist_on", "mist_off",
                   "g", "gp", "m", "t", "set_tool", "set_origin", "macro", "estop",
                   "estop_reset", "machine_off", "machine_on", "home_all", "unhome_all",
-                  "home_x", "unhome_x", "home_z", "unhome_z", "fo", "so", "rpm", "mv",
+                  "home_x", "unhome_x", "home_z", "unhome_z", "fo", "so", "rpm", "mv","manual_feed",
                   "manual_mode", "scrolling", "override_limits", "spindle_forward",
                   "spindle_off", "spindle_reverse", "spindle_faster", "spindle_slower",
                   "dro_commanded", "dro_actual", "dro_inch", "dro_mm",
@@ -789,19 +796,19 @@ class touchy:
             if d != 0:
                 self.linuxcnc.max_velocity(self.mv_val)
 
-    def wheelJogUpdate(self, d):
+    def wheelManualFeedUpdate(self, d):
         if self.hal.wheelreset:
-            self.jog_vel_val = self.default_velocity
-            self.linuxcnc.continuous_jog_velocity(self.jog_vel_val)
+            self.manual_feedrate_val = self.default_feedrate
+            self.hal.manual_feedrate = self.manual_feedrate_val
         else:
-            increment = float(d) / 20
-            self.jog_vel_val += increment
-            if self.jog_vel_val < 0:
-                self.jog_vel_val = 0
-            if self.jog_vel_val > self.velocity_limit:
-                self.jog_vel_val = self.velocity_limit
+            increment = float(d) * 0.001
+            self.manual_feedrate_val += increment
+            if self.manual_feedrate_val < 0:
+                self.manual_feedrate_val = 0
+            if self.manual_feedrate_val > self.max_feedrate:
+                self.manual_feedrate_val = self.max_feedrate
             if d != 0:
-                self.linuxcnc.continuous_jog_velocity(self.jog_vel_val)
+                self.hal.manual_feedrate = self.manual_feedrate_val
 
     def periodic_radiobuttons(self):
         self.radiobutton_mask = 1
@@ -819,22 +826,26 @@ class touchy:
 
         if (self.status.is_manual_mode == 1):
             hide_widget(self.get_widget("fo"))
-            hide_widget(self.get_widget("fo"))
             hide_widget(self.get_widget("so"))
+            hide_widget(self.get_widget("mv"))
             show_widget(self.get_widget("rpm"))
-            if self.wheel == "fo" or self.wheel == "so":
-                self.wheel = "mv"
+            show_widget(self.get_widget("manual_feed"))
+            if self.wheel == "fo" or self.wheel == "so" or self.wheel == "mv":
+                self.wheel = "rpm"
         else:
             show_widget(self.get_widget("fo"))
             show_widget(self.get_widget("so"))
+            show_widget(self.get_widget("mv"))
             hide_widget(self.get_widget("rpm"))
-            if self.wheel == "rpm":
+            hide_widget(self.get_widget("manual_feed"))
+            if self.wheel == "rpm" or self.wheel == "manual_feed":
                 self.wheel = "fo"
 
         set_active(self.get_widget("fo"), self.wheel == "fo")
         set_active(self.get_widget("so"), self.wheel == "so")
         set_active(self.get_widget("rpm"), self.wheel == "rpm")
         set_active(self.get_widget("mv"), self.wheel == "mv")
+        set_active(self.get_widget("manual_feed"), self.wheel == "manual_feed")
         set_active(self.get_widget("manual_mode"), self.status.is_manual_mode == 1)
         set_active(self.get_widget("scrolling"), self.wheel == "scrolling")
         set_active(self.get_widget("pointer_show"), not self.invisible_cursor)
@@ -853,10 +864,10 @@ class touchy:
         if self.wheel == "rpm":
             self.wheelRPMUpdate(d)
         if self.wheel == "mv":
-            if (self.status.is_manual_mode == 1):
-                self.wheelJogUpdate(d)
-            else:
-                self.wheelMvUpdate(d)
+            self.wheelMvUpdate(d)
+        if self.wheel == "manual_feed":
+            self.wheelManualFeedUpdate(d)
+
         if self.wheel == "scrolling":
             d0 = d * 10 ** (2 - self.wheelinc)
             if d != 0:
@@ -867,9 +878,9 @@ class touchy:
 
         if (self.status.is_manual_mode == 1):
             self.get_widget("rpm").set_label("RPM: %d" % self.spindle_speed_val)
-            self.get_widget("mv").set_label("MV: %.2f" % self.jog_vel_val)
-        else:
-            self.get_widget("mv").set_label("MV: %.2f" % self.mv_val)
+
+        self.get_widget("mv").set_label("MV: %.2f" % self.mv_val)
+        self.get_widget("manual_feed").set_label("Feed: %.3f" % self.manual_feedrate_val)
 
         if (self.hal.spindle_forward == 1):
             self.spindle_forward(0)
@@ -926,11 +937,10 @@ class touchy:
         for c in list(self._dynamic_childs.values()):
             c.terminate()
 
-    def save_maxvel_pref(self):
+    def save_prefs(self):
         self.prefs.putpref('maxvel', self.mv_val, int)
-
-    def save_spindle_speed(self):
         self.prefs.putpref('spindle_speed', self.spindle_speed_val, float)
+        self.prefs.putpref('manual_feed', self.manual_feedrate_val, float)
 
     def postgui(self):
         postgui_halfile = self.ini.findall("HAL", "POSTGUI_HALFILE") or None
