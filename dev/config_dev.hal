@@ -104,18 +104,24 @@ setp mix.x.jog-scale 0.0001
 
 net mpg-x-scale-val mux8.mpg-x.out  => mix.x.mpg-scale
 
-net spindle-pos    bench_test.hand-turn-f     => spindle.0.revs
-net spindle-pos    => mix.x.spindle-pos
+net spindle-pos              bench_test.hand-turn-f  => spindle.0.revs
+net spindle-pos           => mix.x.spindle-pos
 net spindle-feedback-loop => mix.x.spindle-cmd-rpm
+net x-offset                 mix.x.css-axis-offset
+net x-axis-position          joint.0.pos-fb => mix.x.css-axis-position
 
 net joy-x-scaled    bench_test.joystick-val-f   => mix.x.joy-in
+
+setp mix.x.css-max-rpm 1500
+setp mix.x.css-velocity 60
 
 # net feed-x-negative    bench_test.feed-negative   => mix.x.feed-negative
 # net feed-x-positive    bench_test.feed-positive   => mix.x.feed-positive
 net manual-feed-rate mix.x.feed-per-rev
-net x-jog-final     mix.x.counts-out => joint.0.jog-counts => axis.x.jog-counts
-net x-jog-mode      mix.x.vel-mode-out   => joint.0.jog-vel-mode => axis.x.jog-vel-mode
+net x-jog-final      mix.x.counts-out => joint.0.jog-counts => axis.x.jog-counts
+net x-jog-mode       mix.x.vel-mode-out   => joint.0.jog-vel-mode => axis.x.jog-vel-mode
 
 setp mix.x.joy-speed-slow  50   # Feed mode
 setp mix.x.joy-speed-fast  300  # Fast jog
 setp mix.x.joy-deadband 0.15
+

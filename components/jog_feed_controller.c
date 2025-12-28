@@ -9,6 +9,7 @@ MODULE_AUTHOR("jmenz");
 MODULE_DESCRIPTION("Hybrid Joystick (Velocity) and MPG (Position) Mixer");
 
 #define MAX_INSTANCES 8
+#define PI 3.14159265359
 
 // Prints 'fmt' message only once every 1000 calls (approx 1 second)
 #define DEBUG_MSG(fmt, ...) \
@@ -27,22 +28,33 @@ RTAPI_MP_ARRAY_STRING(names, MAX_INSTANCES, "Names of instances (e.g. names=x,z)
 // --- Data Structure ---
 typedef struct {
     // PINS
+    // jog
     hal_s32_t   *mpg_in;
     hal_float_t *mpg_scale;
     hal_float_t *joy_in;
     hal_bit_t   *joy_btn;
 
+    // feed
     hal_bit_t   *feed_positive;
     hal_bit_t   *feed_negative;
     hal_bit_t   *feed_mode;
-    hal_bit_t   *css_enabled;
     hal_float_t *spindle_pos;
     hal_float_t *spindle_cmd_rpm;
     hal_float_t *feed_per_rev;
+
+    //css
+    hal_bit_t   *css_enabled;
+    hal_float_t *css_velocity;
+    hal_float_t *css_max_rpm;
+    hal_float_t *css_axis_offset;
+    hal_float_t *css_axis_position;
     
+    // out
     hal_s32_t   *counts_out;
     hal_bit_t   *vel_mode_out;
     hal_bit_t   *fast_mode_out;
+    hal_float_t *css_rpm;
+    hal_float_t *css_rpm_abs;
 
     // PARAMETERS
     hal_float_t joy_deadband;
@@ -120,7 +132,22 @@ static double getJogAccumulatedValue(comp_data_t *data, float joy_val) {
     return delta;
 }
 
+
 /* ****** MANUAL FEED *******/
+static double getRpm(comp_data_t *data) {
+
+    if (!*(data->css_enabled)) {
+        return *(data->spindle_cmd_rpm);
+    }
+
+    double diameter = fabs(*(data->css_axis_position) + *(data->css_axis_offset)) * 2.0;
+    
+    if (diameter < 0.5) diameter = 0.5;
+
+    double rpm = (*(data->css_velocity) * 1000.0) / (PI * diameter);
+
+    return rpm > *(data->css_max_rpm) ? *(data->css_max_rpm) : rpm;
+}
 
 static int getFeedDirection(comp_data_t *data) {
     if (*(data->feed_positive)) {
@@ -148,7 +175,7 @@ static double getSoftFeedValue(comp_data_t *data, long period) {
     int feed_dir = getFeedDirection(data);
     if (feed_dir == 0) return 0.0;
 
-    double rpm = *(data->spindle_cmd_rpm);
+    double rpm = *(data->css_rpm);
     if (rpm < 0.0) rpm = -rpm;
     double period_sec = (double)period * 1.0e-9;
 
@@ -165,6 +192,8 @@ static void update(void *arg, long period) {
         data->last_spindle_pos = *(data->spindle_pos);
         data->internal_accumulator = 0.0;
         data->first_run = 0;
+        *(data->css_rpm) = *(data->spindle_cmd_rpm);
+        *(data->css_rpm_abs) = fabs(*(data->spindle_cmd_rpm));
     }
 
     toggleJogSpeed(data);
@@ -174,6 +203,10 @@ static void update(void *arg, long period) {
     double current_spindle_pos = *(data->spindle_pos);
     double spindle_pos_delta = current_spindle_pos - data->last_spindle_pos;
     data->last_spindle_pos = current_spindle_pos;
+
+    *(data->css_rpm) = getRpm(data);
+    *(data->css_rpm_abs) = fabs(*(data->css_rpm));
+    
     double feed_distance = *(data->feed_mode) ? getRigidFeedValue(data, spindle_pos_delta) : getSoftFeedValue(data, period);
 
     data->internal_accumulator += jog_distance + feed_distance;
@@ -207,27 +240,40 @@ int rtapi_app_main(void) {
 
         #define PIN_NAME(suffix) rtapi_snprintf(name_buf, sizeof(name_buf), "%s.%s", names[i], suffix)
 
+        // Jog specific
         PIN_NAME("mpg-in");         res += hal_pin_s32_new(name_buf, HAL_IN, &(data->mpg_in), comp_id);
         PIN_NAME("mpg-scale");      res += hal_pin_float_new(name_buf, HAL_IN, &(data->mpg_scale), comp_id);
         PIN_NAME("joy-in");         res += hal_pin_float_new(name_buf, HAL_IN, &(data->joy_in), comp_id);
         PIN_NAME("joy-btn");        res += hal_pin_bit_new(name_buf, HAL_IN, &(data->joy_btn), comp_id);
 
-        PIN_NAME("feed-positive");   res += hal_pin_bit_new(name_buf, HAL_IN, &(data->feed_positive), comp_id);
-        PIN_NAME("feed-negative");   res += hal_pin_bit_new(name_buf, HAL_IN, &(data->feed_negative), comp_id);
-        PIN_NAME("feed-mode");       res += hal_pin_bit_new(name_buf, HAL_IN, &(data->feed_mode), comp_id);
-        PIN_NAME("css-enabled");     res += hal_pin_bit_new(name_buf, HAL_IN, &(data->css_enabled), comp_id);
-        PIN_NAME("spindle-pos");     res += hal_pin_float_new(name_buf, HAL_IN, &(data->spindle_pos), comp_id);
-        PIN_NAME("spindle-cmd-rpm"); res += hal_pin_float_new(name_buf, HAL_IN, &(data->spindle_cmd_rpm), comp_id);
-        PIN_NAME("feed-per-rev");    res += hal_pin_float_new(name_buf, HAL_IN, &(data->feed_per_rev), comp_id);
-
-        PIN_NAME("counts-out");     res += hal_pin_s32_new(name_buf, HAL_OUT, &(data->counts_out), comp_id);
-        PIN_NAME("vel-mode-out");   res += hal_pin_bit_new(name_buf, HAL_OUT, &(data->vel_mode_out), comp_id);
-        PIN_NAME("fast-mode-out");  res += hal_pin_bit_new(name_buf, HAL_OUT, &(data->fast_mode_out), comp_id);
-
+        // Jog specific params
         PIN_NAME("joy-deadband");   res += hal_param_float_new(name_buf, HAL_RW, &(data->joy_deadband), comp_id);
         PIN_NAME("joy-speed-slow"); res += hal_param_float_new(name_buf, HAL_RW, &(data->joy_speed_slow), comp_id);
         PIN_NAME("joy-speed-fast"); res += hal_param_float_new(name_buf, HAL_RW, &(data->joy_speed_fast), comp_id);
         PIN_NAME("jog-scale");      res += hal_param_float_new(name_buf, HAL_RW, &(data->jog_scale), comp_id);
+
+        // Feed specific
+        PIN_NAME("feed-positive");   res += hal_pin_bit_new(name_buf, HAL_IN, &(data->feed_positive), comp_id);
+        PIN_NAME("feed-negative");   res += hal_pin_bit_new(name_buf, HAL_IN, &(data->feed_negative), comp_id);
+        PIN_NAME("feed-mode");       res += hal_pin_bit_new(name_buf, HAL_IN, &(data->feed_mode), comp_id);
+        PIN_NAME("spindle-pos");     res += hal_pin_float_new(name_buf, HAL_IN, &(data->spindle_pos), comp_id);
+        PIN_NAME("spindle-cmd-rpm"); res += hal_pin_float_new(name_buf, HAL_IN, &(data->spindle_cmd_rpm), comp_id);
+        PIN_NAME("feed-per-rev");    res += hal_pin_float_new(name_buf, HAL_IN, &(data->feed_per_rev), comp_id);
+
+        //CSS specific
+        PIN_NAME("css-enabled");       res += hal_pin_bit_new(name_buf, HAL_IN, &(data->css_enabled), comp_id);
+        PIN_NAME("css-velocity");      res += hal_pin_float_new(name_buf, HAL_IN, &(data->css_velocity), comp_id);
+        PIN_NAME("css-max-rpm");       res += hal_pin_float_new(name_buf, HAL_IN, &(data->css_max_rpm), comp_id);
+        PIN_NAME("css-axis-offset");   res += hal_pin_float_new(name_buf, HAL_IN, &(data->css_axis_offset), comp_id);
+        PIN_NAME("css-axis-position"); res += hal_pin_float_new(name_buf, HAL_IN, &(data->css_axis_position), comp_id);
+
+        // Outputs
+        PIN_NAME("counts-out");     res += hal_pin_s32_new(name_buf, HAL_OUT, &(data->counts_out), comp_id);
+        PIN_NAME("vel-mode-out");   res += hal_pin_bit_new(name_buf, HAL_OUT, &(data->vel_mode_out), comp_id);
+        PIN_NAME("fast-mode-out");  res += hal_pin_bit_new(name_buf, HAL_OUT, &(data->fast_mode_out), comp_id);
+
+        PIN_NAME("css-rpm");   res += hal_pin_float_new(name_buf, HAL_OUT, &(data->css_rpm), comp_id);
+        PIN_NAME("css-rpm-abs");   res += hal_pin_float_new(name_buf, HAL_OUT, &(data->css_rpm_abs), comp_id);
 
         if (res != 0) goto error;
 

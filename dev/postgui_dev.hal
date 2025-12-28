@@ -5,3 +5,5 @@ net abort bench_test.cycle-stop => touchy.abort
 
 # Manual feed
 net manual-feed-rate touchy.manual-feedrate
+
+net x-offset touchy.x-summ-offset

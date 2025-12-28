@@ -376,6 +376,8 @@ class emc_status:
 
                 relp = [x, y, z, a, b, c, u, v, w]
 
+                self.hal.x_summ_offset = 0 - self.emcstat.g5x_offset[0] - self.emcstat.tool_offset[0] - self.emcstat.g92_offset[0]
+
                 if self.mm != self.machine_units_mm:
                         p = self.convert_units(p,self.unit_convert)
                         relp = self.convert_units(relp,self.unit_convert)

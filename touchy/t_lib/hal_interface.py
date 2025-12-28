@@ -108,6 +108,9 @@ class hal_interface:
         self.c.newpin("manual-feedrate", hal.HAL_FLOAT, hal.HAL_OUT)
         self.manual_feedrate = 0
 
+        self.c.newpin("x-summ-offset", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.x_summ_offset = 0
+
 
         self.c.ready()
         self.active = 0
@@ -286,6 +289,8 @@ class hal_interface:
             self.spindle_pos = 360 * (self.c["spindle-pos"] % 1)
         else:
             self.spindle_pos = 0
+
+        self.c["x-summ-offset"] = self.x_summ_offset
 
         self.c["manual-feedrate"] = self.manual_feedrate
 
