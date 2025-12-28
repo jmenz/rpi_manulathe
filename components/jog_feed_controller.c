@@ -134,20 +134,13 @@ static int getFeedDirection(comp_data_t *data) {
     return 0;
 }
 
-static double getRigidFeedValue(comp_data_t *data) {
+static double getRigidFeedValue(comp_data_t *data, double spindle_pos_delta) {
 
     if (data->jog_scale < 0.0000001) return 0.0;
-
-    double current_spindle_pos = *(data->spindle_pos);
-    double spindle_rev = current_spindle_pos - data->last_spindle_pos;
-    data->last_spindle_pos = current_spindle_pos;
-
     int feed_dir = getFeedDirection(data);
-    if (feed_dir != 0) {
-        return spindle_rev * *(data->feed_per_rev) * (1 / data->jog_scale) * feed_dir;
-    }
-
-    return 0.0;
+    if (feed_dir == 0) return 0.0;
+    
+    return spindle_pos_delta * *(data->feed_per_rev) * (1 / data->jog_scale) * feed_dir;
 }
 
 static double getSoftFeedValue(comp_data_t *data, long period) {
@@ -177,7 +170,11 @@ static void update(void *arg, long period) {
     toggleJogSpeed(data);
     float joy_val = getJoyValue(data);
     double jog_distance = getJogAccumulatedValue(data, joy_val);
-    double feed_distance = *(data->feed_mode) ? getRigidFeedValue(data) : getSoftFeedValue(data, period);
+
+    double current_spindle_pos = *(data->spindle_pos);
+    double spindle_pos_delta = current_spindle_pos - data->last_spindle_pos;
+    data->last_spindle_pos = current_spindle_pos;
+    double feed_distance = *(data->feed_mode) ? getRigidFeedValue(data, spindle_pos_delta) : getSoftFeedValue(data, period);
 
     data->internal_accumulator += jog_distance + feed_distance;
 
