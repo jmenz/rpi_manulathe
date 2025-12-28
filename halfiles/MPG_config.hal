@@ -35,7 +35,8 @@ net joy-btn         hm2_7i92.0.7i73.0.0.input-12-not  => mix.x.joy-btn
 net mpg-x-raw       hm2_7i92.0.7i73.0.0.enc1.count    => mix.x.mpg-in
 net mpg-x-scale-val mux8.mpg-x.out                    => mix.x.mpg-scale
 
-net s-position    => mix.x.spindle-pos
+net s-position      => mix.x.spindle-pos
+net s-rpm-commanded => mix.x.spindle-cmd-rpm
 
 net x-jog-final     mix.x.counts-out => joint.0.jog-counts => axis.x.jog-counts
 net x-jog-mode      mix.x.vel-mode-out   => joint.0.jog-vel-mode => axis.x.jog-vel-mode
@@ -77,7 +78,8 @@ net joy-btn      => mix.z.joy-btn
 net mpg-z-raw       hm2_7i92.0.7i73.0.0.enc0.count    => mix.z.mpg-in
 net mpg-z-scale-val mux8.mpg-z.out                    => mix.z.mpg-scale
 
-net s-position    => mix.z.spindle-pos
+net s-position      => mix.z.spindle-pos
+net s-rpm-commanded => mix.z.spindle-cmd-rpm
 
 net z-jog-final     mix.z.counts-out => joint.1.jog-counts => axis.z.jog-counts
 net z-jog-mode      mix.z.vel-mode-out   => joint.1.jog-vel-mode => axis.z.jog-vel-mode

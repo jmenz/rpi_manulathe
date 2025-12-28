@@ -14,11 +14,12 @@ net s-velocity-rpm          hm2_7i92.0.encoder.02.velocity-rpm => lowpass.spindl
 net s-velocity-rpm-filtered lowpass.spindle-rpm.out => scale.s-rpm.in 
 net s-velocity-rps          scale.s-rpm.out         => spindle.0.speed-in
 
-net s-rpm-commanded  spindle.0.speed-out-abs
+net s-rpm-commanded-abs  spindle.0.speed-out-abs
+net s-rpm-commanded      spindle.0.speed-out
 
 setp spindle-at-speed.difference 50
 
-net s-rpm-commanded spindle-at-speed.in1
+net s-rpm-commanded-abs spindle-at-speed.in1
 net s-velocity-rpm-filtered spindle-at-speed.in2
 net s-ready spindle-at-speed.out spindle.0.at-speed
 #setp spindle.0.at-speed 1
@@ -37,7 +38,7 @@ setp scale.servo.gain 1.466
 net s-forward    spindle.0.forward
 net s-reverse    spindle.0.reverse
 
-net s-rpm-commanded => scale.servo.in
+net s-rpm-commanded-abs => scale.servo.in
 net s-rpm-scaled       scale.servo.out => t3d_servo.spindle-speed
 net s-forward       => t3d_servo.forward
 net s-reverse       => t3d_servo.reverse

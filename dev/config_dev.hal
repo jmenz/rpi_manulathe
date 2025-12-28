@@ -106,12 +106,13 @@ net mpg-x-scale-val mux8.mpg-x.out  => mix.x.mpg-scale
 
 net spindle-pos    bench_test.hand-turn-f     => spindle.0.revs
 net spindle-pos    => mix.x.spindle-pos
+net spindle-feedback-loop => mix.x.spindle-cmd-rpm
 
 net joy-x-scaled    bench_test.joystick-val-f   => mix.x.joy-in
 
 # net feed-x-negative    bench_test.feed-negative   => mix.x.feed-negative
 # net feed-x-positive    bench_test.feed-positive   => mix.x.feed-positive
-setp mix.x.feed-per-rev 0.1
+net manual-feed-rate mix.x.feed-per-rev
 net x-jog-final     mix.x.counts-out => joint.0.jog-counts => axis.x.jog-counts
 net x-jog-mode      mix.x.vel-mode-out   => joint.0.jog-vel-mode => axis.x.jog-vel-mode
 

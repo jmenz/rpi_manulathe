@@ -34,7 +34,10 @@ typedef struct {
 
     hal_bit_t   *feed_positive;
     hal_bit_t   *feed_negative;
+    hal_bit_t   *feed_mode;
+    hal_bit_t   *css_enabled;
     hal_float_t *spindle_pos;
+    hal_float_t *spindle_cmd_rpm;
     hal_float_t *feed_per_rev;
     
     hal_s32_t   *counts_out;
@@ -59,6 +62,8 @@ typedef struct {
 
 static int comp_id;
 static comp_data_t *instance_data[MAX_INSTANCES];
+
+/* ****** JOGGING *******/
 
 static void toggleJogSpeed(comp_data_t *data) {
     hal_bit_t btn_state = *(data->joy_btn);
@@ -115,6 +120,8 @@ static double getJogAccumulatedValue(comp_data_t *data, float joy_val) {
     return delta;
 }
 
+/* ****** MANUAL FEED *******/
+
 static int getFeedDirection(comp_data_t *data) {
     if (*(data->feed_positive)) {
         return 1;
@@ -127,7 +134,7 @@ static int getFeedDirection(comp_data_t *data) {
     return 0;
 }
 
-static double getFeedValue(comp_data_t *data) {
+static double getRigidFeedValue(comp_data_t *data) {
 
     if (data->jog_scale < 0.0000001) return 0.0;
 
@@ -140,7 +147,21 @@ static double getFeedValue(comp_data_t *data) {
         return spindle_rev * *(data->feed_per_rev) * (1 / data->jog_scale) * feed_dir;
     }
 
-    return 0;
+    return 0.0;
+}
+
+static double getSoftFeedValue(comp_data_t *data, long period) {
+    if (data->jog_scale < 0.0000001) return 0.0;
+    int feed_dir = getFeedDirection(data);
+    if (feed_dir == 0) return 0.0;
+
+    double rpm = *(data->spindle_cmd_rpm);
+    if (rpm < 0.0) rpm = -rpm;
+    double period_sec = (double)period * 1.0e-9;
+
+    double spindle_rev = (rpm / 60.0) * period_sec;
+
+    return spindle_rev * *(data->feed_per_rev) * (1 / data->jog_scale) * feed_dir;
 }
 
 static void update(void *arg, long period) {
@@ -155,10 +176,10 @@ static void update(void *arg, long period) {
 
     toggleJogSpeed(data);
     float joy_val = getJoyValue(data);
-    double move_delta = getJogAccumulatedValue(data, joy_val);
-    double feed_data = getFeedValue(data);
+    double jog_distance = getJogAccumulatedValue(data, joy_val);
+    double feed_distance = *(data->feed_mode) ? getRigidFeedValue(data) : getSoftFeedValue(data, period);
 
-    data->internal_accumulator += move_delta + feed_data;
+    data->internal_accumulator += jog_distance + feed_distance;
 
     *(data->counts_out) = (hal_s32_t)data->internal_accumulator;
 }
@@ -194,9 +215,12 @@ int rtapi_app_main(void) {
         PIN_NAME("joy-in");         res += hal_pin_float_new(name_buf, HAL_IN, &(data->joy_in), comp_id);
         PIN_NAME("joy-btn");        res += hal_pin_bit_new(name_buf, HAL_IN, &(data->joy_btn), comp_id);
 
-        PIN_NAME("feed-positive");  res += hal_pin_bit_new(name_buf, HAL_IN, &(data->feed_positive), comp_id);
-        PIN_NAME("feed-negative");  res += hal_pin_bit_new(name_buf, HAL_IN, &(data->feed_negative), comp_id);
-        PIN_NAME("spindle-pos");    res += hal_pin_float_new(name_buf, HAL_IN, &(data->spindle_pos), comp_id);
+        PIN_NAME("feed-positive");   res += hal_pin_bit_new(name_buf, HAL_IN, &(data->feed_positive), comp_id);
+        PIN_NAME("feed-negative");   res += hal_pin_bit_new(name_buf, HAL_IN, &(data->feed_negative), comp_id);
+        PIN_NAME("feed-mode");       res += hal_pin_bit_new(name_buf, HAL_IN, &(data->feed_mode), comp_id);
+        PIN_NAME("css-enabled");     res += hal_pin_bit_new(name_buf, HAL_IN, &(data->css_enabled), comp_id);
+        PIN_NAME("spindle-pos");     res += hal_pin_float_new(name_buf, HAL_IN, &(data->spindle_pos), comp_id);
+        PIN_NAME("spindle-cmd-rpm"); res += hal_pin_float_new(name_buf, HAL_IN, &(data->spindle_cmd_rpm), comp_id);
         PIN_NAME("feed-per-rev");    res += hal_pin_float_new(name_buf, HAL_IN, &(data->feed_per_rev), comp_id);
 
         PIN_NAME("counts-out");     res += hal_pin_s32_new(name_buf, HAL_OUT, &(data->counts_out), comp_id);

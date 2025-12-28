@@ -2,3 +2,6 @@
 
 net cycle_start bench_test.cycle-start => touchy.cycle-start
 net abort bench_test.cycle-stop => touchy.abort
+
+# Manual feed
+net manual-feed-rate touchy.manual-feedrate
