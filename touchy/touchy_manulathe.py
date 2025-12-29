@@ -160,6 +160,10 @@ class touchy:
         self.spindle_max_speed = float(self.ini.find("DISPLAY", "SPINDLE_MAX_SPEED"))
 
         self.spindle_speed_val = self.prefs.getpref('spindle_speed', self.spindle_default_speed, float)
+        self.css_val = self.prefs.getpref('css_val', 60, float)
+
+        self.css_active = 0
+        self.last_reset_state = 0
 
         # initial screen setup
         if os.path.exists(themedir):
@@ -201,6 +205,7 @@ class touchy:
         self.colors = {
             'selected_bg': Gdk.color_parse('#0F579B'),
             'selected_fg': Gdk.color_parse('#fcfcfc'),
+            'active_btn_fg': Gdk.color_parse("#186CBB"),
             'normal_bg':   Gdk.color_parse('#ccc'),
             'normal_fg':   Gdk.color_parse('#232323')
         }
@@ -398,6 +403,7 @@ class touchy:
             "on_fo_clicked" : self.fo,
             "on_so_clicked" : self.so,
             "on_rpm_clicked" : self.rpm,
+            "on_css_clicked" : self.css,
             "on_mv_clicked" : self.mv,
             "on_manual_feed_clicked" : self.manual_feed,
             "on_manual_clicked" : self.set_manual,
@@ -585,6 +591,10 @@ class touchy:
         if self.radiobutton_mask: return
         self.wheel = "rpm"
 
+    def css(self, b):
+        if self.radiobutton_mask: return
+        self.wheel = "css"
+
     def mv(self, b):
         if self.radiobutton_mask: return
         self.wheel = "mv"
@@ -653,7 +663,7 @@ class touchy:
                   "minus", "decimal", "flood_on", "flood_off", "mist_on", "mist_off",
                   "g", "gp", "m", "t", "set_tool", "set_origin", "macro", "estop",
                   "estop_reset", "machine_off", "machine_on", "home_all", "unhome_all",
-                  "home_x", "unhome_x", "home_z", "unhome_z", "fo", "so", "rpm", "mv","manual_feed",
+                  "home_x", "unhome_x", "home_z", "unhome_z", "fo", "so", "rpm", "css", "mv","manual_feed",
                   "manual_mode", "scrolling", "override_limits", "spindle_forward",
                   "spindle_off", "spindle_reverse", "spindle_faster", "spindle_slower",
                   "dro_commanded", "dro_actual", "dro_inch", "dro_mm",
@@ -782,6 +792,17 @@ class touchy:
         if current_speed != self.spindle_speed_val:
             self.linuxcnc.spindle_set_speed(self.spindle_speed_val)
 
+    def wheelCSSUpdate(self, d):
+        if d != 0:
+            self.css_val += d
+            if self.css_val < 0: self.css_val = 0
+
+        current_reset = self.hal.wheelreset
+        if current_reset and not self.last_reset_state:
+            self.css_active = not self.css_active
+
+        self.last_reset_state = current_reset
+
     def wheelMvUpdate(self, d):
         if self.hal.wheelreset:
             self.mv_val = self.default_velocity
@@ -829,6 +850,7 @@ class touchy:
             hide_widget(self.get_widget("so"))
             hide_widget(self.get_widget("mv"))
             show_widget(self.get_widget("rpm"))
+            show_widget(self.get_widget("css"))
             show_widget(self.get_widget("manual_feed"))
             if self.wheel == "fo" or self.wheel == "so" or self.wheel == "mv":
                 self.wheel = "rpm"
@@ -837,13 +859,15 @@ class touchy:
             show_widget(self.get_widget("so"))
             show_widget(self.get_widget("mv"))
             hide_widget(self.get_widget("rpm"))
+            hide_widget(self.get_widget("css"))
             hide_widget(self.get_widget("manual_feed"))
-            if self.wheel == "rpm" or self.wheel == "manual_feed":
+            if self.wheel == "rpm" or self.wheel == "css" or self.wheel == "manual_feed":
                 self.wheel = "fo"
 
         set_active(self.get_widget("fo"), self.wheel == "fo")
         set_active(self.get_widget("so"), self.wheel == "so")
         set_active(self.get_widget("rpm"), self.wheel == "rpm")
+        set_active(self.get_widget("css"), self.wheel == "css")
         set_active(self.get_widget("mv"), self.wheel == "mv")
         set_active(self.get_widget("manual_feed"), self.wheel == "manual_feed")
         set_active(self.get_widget("manual_mode"), self.status.is_manual_mode == 1)
@@ -863,6 +887,8 @@ class touchy:
             self.wheelSoUpdate(d)
         if self.wheel == "rpm":
             self.wheelRPMUpdate(d)
+        if self.wheel == "css":
+            self.wheelCSSUpdate(d)
         if self.wheel == "mv":
             self.wheelMvUpdate(d)
         if self.wheel == "manual_feed":
@@ -878,6 +904,9 @@ class touchy:
 
         if (self.status.is_manual_mode == 1):
             self.get_widget("rpm").set_label("RPM: %d" % self.spindle_speed_val)
+            self.get_widget("css").set_label("CSS: %d" % self.css_val)
+        css_color = self.colors['active_btn_fg'] if self.css_active else self.colors['selected_fg']
+        self.get_widget("css").modify_fg(Gtk.StateFlags.NORMAL, css_color)
 
         self.get_widget("mv").set_label("MV: %.2f" % self.mv_val)
         self.get_widget("manual_feed").set_label("Feed: %.3f" % self.manual_feedrate_val)
@@ -940,6 +969,7 @@ class touchy:
     def save_prefs(self):
         self.prefs.putpref('maxvel', self.mv_val, int)
         self.prefs.putpref('spindle_speed', self.spindle_speed_val, float)
+        self.prefs.putpref('css_val', self.css_val, float)
         self.prefs.putpref('manual_feed', self.manual_feedrate_val, float)
 
     def postgui(self):
