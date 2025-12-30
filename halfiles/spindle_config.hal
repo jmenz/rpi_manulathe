@@ -38,7 +38,7 @@ setp scale.servo.gain 1.466
 net s-forward    spindle.0.forward
 net s-reverse    spindle.0.reverse
 
-net s-rpm-commanded-abs => scale.servo.in
+net css-rpm         => scale.servo.in
 net s-rpm-scaled       scale.servo.out => t3d_servo.spindle-speed
 net s-forward       => t3d_servo.forward
 net s-reverse       => t3d_servo.reverse

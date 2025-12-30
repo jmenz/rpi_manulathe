@@ -36,7 +36,12 @@ net mpg-x-raw       hm2_7i92.0.7i73.0.0.enc1.count    => mix.x.mpg-in
 net mpg-x-scale-val mux8.mpg-x.out                    => mix.x.mpg-scale
 
 net s-position      => mix.x.spindle-pos
-net s-rpm-commanded => mix.x.spindle-cmd-rpm
+net s-rpm-commanded => mix.x.spindle-cmd-rpm => mix.x.css-max-rpm
+net css-velocity    => mix.x.css-velocity
+net css-enabled     => mix.x.css-enabled
+net x-offset           mix.x.css-axis-offset
+net x-position         joint.0.pos-fb => mix.x.css-axis-position
+net css-rpm         <= mix.x.css-rpm-abs
 
 net x-jog-final     mix.x.counts-out => joint.0.jog-counts => axis.x.jog-counts
 net x-jog-mode      mix.x.vel-mode-out   => joint.0.jog-vel-mode => axis.x.jog-vel-mode
