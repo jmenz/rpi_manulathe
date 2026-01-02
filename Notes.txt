@@ -1,1 +1,5 @@
-free(): double free detected in tcache 2
+mkdir -p ~/.config/gtk-3.0
+nano ~/.config/gtk-3.0/settings.ini
+
+[Settings]
+gtk-touchscreen-mode=0
