@@ -10,9 +10,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import os
+# Modified for USB support
 
-#we need this _soley_ to define colours.
+import os
+import getpass
 from gi.repository import Gdk
 
 class filechooser:
@@ -25,17 +26,24 @@ class filechooser:
         self.emc = emc
         self.emccommand = emc.command()
         self.fileoffset = 0
-        self.dir = os.path.join(os.getenv('HOME'), 'linuxcnc', 'nc_files')
+        
+        # Default local directory
+        self.local_dir = os.path.join(os.getenv('HOME'), 'linuxcnc', 'nc_files')
+        
         self.colors = colors
+        
+        self.files = [] 
         self.reload(0)
 
     def populate(self):
-        files = self.files[self.fileoffset:]
+        page_files = self.files[self.fileoffset:]
+        
         for i in range(self.numlabels):
             l = self.labels[i]
             e = self.eventboxes[i]
-            if i < len(files):
-                l.set_text(files[i])
+            
+            if i < len(page_files):
+                l.set_text(page_files[i][0])
             else:
                 l.set_text('')
 
@@ -47,35 +55,50 @@ class filechooser:
                 l.modify_fg(self.gtk.StateFlags.NORMAL, self.colors['normal_fg'])
 
     def select(self, eventbox, event):
-        n = int(self.gtk.Buildable.get_name(eventbox)[20:])
-        fn = self.labels[n].get_text()
-        if len(fn) == 0: return(fn)
-        self.selected = self.fileoffset + n
+        try:
+            name = self.gtk.Buildable.get_name(eventbox)
+            n = int(name[20:])
+        except (ValueError, IndexError):
+            return
+
+        idx = self.fileoffset + n
+        if idx >= len(self.files):
+            return ""
+
+        display_name, full_path = self.files[idx]
+        
+        self.selected = idx
         self.emccommand.mode(self.emc.MODE_MDI)
-        fn = os.path.join(self.dir, fn)
-        self.emccommand.program_open(fn)
-        self.listing.readfile(fn)
+        
+        self.emccommand.program_open(full_path)
+        self.listing.readfile(full_path)
         self.populate()
-        return(fn)
+        return full_path
 
-    def select_and_show(self,fn):
+    def select_and_show(self, fn):
         self.reload(0)
-        numfiles = len(self.files)
-        fn = os.path.basename(fn)
-        self.fileoffset = 0
-        found = False
-        while True:
-            for k in range(self.numlabels):
-                n = k + self.fileoffset
-                if n >= numfiles: return # notfound
-                if self.files[n] == fn:
-                    found = True
-                    break # from for
-            if found: break # from while
-            self.fileoffset += self.numlabels
+        
+        found_idx = -1
+        for i, (name, path) in enumerate(self.files):
+            if path == fn:
+                found_idx = i
+                break
+        
+        if found_idx == -1:
+            base = os.path.basename(fn)
+            for i, (name, path) in enumerate(self.files):
+                if os.path.basename(path) == base:
+                    found_idx = i
+                    break
 
-        self.selected = n
-        fn = os.path.join(self.dir, fn)
+        if found_idx == -1:
+            return
+
+        self.selected = found_idx
+        
+        page = found_idx // self.numlabels
+        self.fileoffset = page * self.numlabels
+        
         self.listing.readfile(fn)
         self.populate()
 
@@ -87,12 +110,46 @@ class filechooser:
 
     def down(self, b):
         self.fileoffset += self.numlabels
+        if self.fileoffset >= len(self.files):
+             self.fileoffset = max(0, len(self.files) - self.numlabels)
+             if self.fileoffset < 0: self.fileoffset = 0
         self.populate()
 
     def reload(self, b):
-        self.files = os.listdir(self.dir)
-        self.files = [i for i in self.files if (i.endswith('.ngc') or i.endswith('.nc') or i.endswith('.NGC') or i.endswith('.NC')) and
-                      os.path.isfile(os.path.join(self.dir, i))]
-        self.files.sort()
+        self.files = []
+        valid_exts = ('.ngc', '.nc', '.tap', '.gcode')
+
+        if os.path.exists(self.local_dir):
+            try:
+                for f in os.listdir(self.local_dir):
+                    if f.lower().endswith(valid_exts):
+                        full_path = os.path.join(self.local_dir, f)
+                        if os.path.isfile(full_path):
+                            self.files.append((f, full_path))
+            except OSError:
+                pass
+
+        # Scan USB Drives (/media/USER/*)
+        user = getpass.getuser()
+        media_root = os.path.join('/media', user)
+        
+        if os.path.exists(media_root):
+            try:
+                for mount in os.listdir(media_root):
+                    mount_path = os.path.join(media_root, mount)
+                    if os.path.isdir(mount_path):
+                        for f in os.listdir(mount_path):
+                            if f.lower().endswith(valid_exts):
+                                full_path = os.path.join(mount_path, f)
+                                if os.path.isfile(full_path):
+                                    # Add [USB] prefix to display name
+                                    display_name = f"[USB] {f}"
+                                    self.files.append((display_name, full_path))
+            except OSError:
+                pass
+
+        # Sort by Display Name (puts local files first usually, [USB] at end or mixed)
+        self.files.sort(key=lambda x: x[0])
+        
         self.selected = -1
         self.populate()
