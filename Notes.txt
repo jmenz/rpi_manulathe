@@ -1,5 +1,3 @@
-mkdir -p ~/.config/gtk-3.0
-nano ~/.config/gtk-3.0/settings.ini
+export GDK_CORE_DEVICE_EVENTS=1
 
-[Settings]
-gtk-touchscreen-mode=0
+env GDK_CORE_DEVICE_EVENTS=1

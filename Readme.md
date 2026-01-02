@@ -91,30 +91,5 @@ sudo cp ./additional_files/pyngcgui.py /usr/lib/python3/dist-packages/pyngcgui.p
 
 # fix touchscreen driver
 
-```
-sudo nano /etc/X11/xorg.conf.d/99-touchscreen-evdev.conf
-```
-
-```
-# 1. Explicitly tell libinput to IGNORE touchscreens
-Section "InputClass"
-        Identifier "libinput touchscreen ignore"
-        MatchIsTouchscreen "on"
-        MatchDevicePath "/dev/input/event*"
-        Driver "libinput"
-        Option "Ignore" "on"
-EndSection
-
-# 2. Force evdev to handle them
-Section "InputClass"
-        Identifier "calibration"
-        MatchIsTouchscreen "on"
-        MatchDevicePath "/dev/input/event*"
-        Driver "evdev"
-        # Emulate a mouse click immediately on touch
-        Option "EmulateThirdButton" "1"
-        Option "EmulateThirdButtonTimeout" "750"
-        Option "EmulateThirdButtonMoveThreshold" "30"
-EndSection
-```
+add env GDK_CORE_DEVICE_EVENTS=1 before launch command
 
