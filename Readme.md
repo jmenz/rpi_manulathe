@@ -85,22 +85,33 @@ xinput list
 xinput map-to-output "ke.dei USB2IIC_CTP_CONTROL" HDMI-2
 ```
 
+# fix pyngcgui reread button:
+sudo cp ./additional_files/pyngcgui.py /usr/lib/python3/dist-packages/pyngcgui.py
 
 
 # fix touchscreen driver
 
 ```
-sudo nano /usr/share/X11/xorg.conf.d/45-evdev.conf
+sudo nano /etc/X11/xorg.conf.d/99-touchscreen-evdev.conf
 ```
 
 ```
+# 1. Explicitly tell libinput to IGNORE touchscreens
 Section "InputClass"
-        Identifier "Touchscreen catchall"
+        Identifier "libinput touchscreen ignore"
+        MatchIsTouchscreen "on"
+        MatchDevicePath "/dev/input/event*"
+        Driver "libinput"
+        Option "Ignore" "on"
+EndSection
+
+# 2. Force evdev to handle them
+Section "InputClass"
+        Identifier "calibration"
         MatchIsTouchscreen "on"
         MatchDevicePath "/dev/input/event*"
         Driver "evdev"
-        # This option fixes the "Jumping" by ensuring the button release 
-        # happens before the cursor moves to the new spot.
+        # Emulate a mouse click immediately on touch
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "750"
         Option "EmulateThirdButtonMoveThreshold" "30"
