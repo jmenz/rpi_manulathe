@@ -143,13 +143,13 @@ class filechooser:
                                 full_path = os.path.join(mount_path, f)
                                 if os.path.isfile(full_path):
                                     # Add [USB] prefix to display name
-                                    display_name = f"[USB] {f}"
+                                    display_name = f"[D] {f}"
                                     self.files.append((display_name, full_path))
             except OSError:
                 pass
 
         # Sort by Display Name (puts local files first usually, [USB] at end or mixed)
-        self.files.sort(key=lambda x: x[0])
+        self.files.sort(key=lambda x: (x[0].startswith('[D]'), x[0]))
         
         self.selected = -1
         self.populate()
