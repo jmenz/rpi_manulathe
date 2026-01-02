@@ -86,3 +86,24 @@ xinput map-to-output "ke.dei USB2IIC_CTP_CONTROL" HDMI-2
 ```
 
 
+
+# fix touchscreen driver
+
+```
+sudo nano /usr/share/X11/xorg.conf.d/45-evdev.conf
+```
+
+```
+Section "InputClass"
+        Identifier "Touchscreen catchall"
+        MatchIsTouchscreen "on"
+        MatchDevicePath "/dev/input/event*"
+        Driver "evdev"
+        # This option fixes the "Jumping" by ensuring the button release 
+        # happens before the cursor moves to the new spot.
+        Option "EmulateThirdButton" "1"
+        Option "EmulateThirdButtonTimeout" "750"
+        Option "EmulateThirdButtonMoveThreshold" "30"
+EndSection
+```
+
