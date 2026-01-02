@@ -11,6 +11,7 @@
 # GNU General Public License for more details.
 
 # Modified for USB support
+# Modified for USB support (Local first, then USB)
 
 import os
 import getpass
@@ -27,7 +28,6 @@ class filechooser:
         self.emccommand = emc.command()
         self.fileoffset = 0
         
-        # Default local directory
         self.local_dir = os.path.join(os.getenv('HOME'), 'linuxcnc', 'nc_files')
         
         self.colors = colors
@@ -67,9 +67,11 @@ class filechooser:
 
         display_name, full_path = self.files[idx]
         
+        if full_path is None:
+            return ""
+        
         self.selected = idx
         self.emccommand.mode(self.emc.MODE_MDI)
-        
         self.emccommand.program_open(full_path)
         self.listing.readfile(full_path)
         self.populate()
@@ -87,15 +89,14 @@ class filechooser:
         if found_idx == -1:
             base = os.path.basename(fn)
             for i, (name, path) in enumerate(self.files):
-                if os.path.basename(path) == base:
+                if path and os.path.basename(path) == base:
                     found_idx = i
                     break
 
         if found_idx == -1:
-            return
+            return 
 
         self.selected = found_idx
-        
         page = found_idx // self.numlabels
         self.fileoffset = page * self.numlabels
         
@@ -116,7 +117,8 @@ class filechooser:
         self.populate()
 
     def reload(self, b):
-        self.files = []
+        local_files = []
+        usb_files = []
         valid_exts = ('.ngc', '.nc', '.tap', '.gcode')
 
         if os.path.exists(self.local_dir):
@@ -125,14 +127,14 @@ class filechooser:
                     if f.lower().endswith(valid_exts):
                         full_path = os.path.join(self.local_dir, f)
                         if os.path.isfile(full_path):
-                            self.files.append((f, full_path))
+                            local_files.append((f, full_path))
             except OSError:
                 pass
+        
+        local_files.sort(key=lambda x: x[0])
 
-        # Scan USB Drives (/media/USER/*)
         user = getpass.getuser()
         media_root = os.path.join('/media', user)
-        
         if os.path.exists(media_root):
             try:
                 for mount in os.listdir(media_root):
@@ -142,14 +144,18 @@ class filechooser:
                             if f.lower().endswith(valid_exts):
                                 full_path = os.path.join(mount_path, f)
                                 if os.path.isfile(full_path):
-                                    # Add [USB] prefix to display name
-                                    display_name = f"[D] {f}"
-                                    self.files.append((display_name, full_path))
+                                    # No prefix, just the filename
+                                    usb_files.append((f, full_path))
             except OSError:
                 pass
 
-        # Sort by Display Name (puts local files first usually, [USB] at end or mixed)
-        self.files.sort(key=lambda x: (x[0].startswith('[D]'), x[0]))
+        usb_files.sort(key=lambda x: x[0])
+
+        self.files = local_files
+        
+        if usb_files:
+            self.files.append(("--- USB ---", None)) 
+            self.files.extend(usb_files)
         
         self.selected = -1
         self.populate()
