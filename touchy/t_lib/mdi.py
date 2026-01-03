@@ -64,7 +64,7 @@ class mdi:
             'G03' : [_('Arc CCW'), 'A', 'I', 'J', 'K', 'R', 'P', 'F'],
             'G4' : [_('Dwell'), 'P'],
             'G04' : [_('Dwell'), 'P'],
-            'G10' : [_('Setup'), 'L', 'P', 'A', 'Q', 'R'],
+            'G10' : [_('Setup'), 'L', 'P', 'A', 'Q', 'R', 'J', 'I'],
             'G33' : [_('Spindle synchronized feed'), 'A', 'K'],
             'G33.1' : [_('Rigid tap'), 'Z', 'K'],
             'G38.2' : [_('Probe'), 'A', 'F'],
@@ -147,6 +147,7 @@ class mdi:
             for i in w:
                 if len(self.words.get(i)) > 0:
                     m += i + self.words.get(i)
+
         self.emcstat.poll()
         if self.emcstat.task_mode != self.emc.MODE_MDI:
             self.emccommand.mode(self.emc.MODE_MDI)
@@ -222,12 +223,12 @@ class mdi_control:
                     self.set_text("", i)
 
     def next(self, b):
-        self.fill_out();
+        self.fill_out()
         if self.numwords > 0:
             self.editing(max(1,(self.selected+1) % (self.numwords+1)))
 
     def ok(self, b):
-        self.fill_out();
+        self.fill_out()
         self.mdi.issue()
 
     def decimal(self, b):
@@ -295,12 +296,6 @@ class mdi_control:
         self.next(0)
         self.set_text("P%d" % tool, 2)
         self.next(0) # go to first axis
-        if ('X' in self.mdi.axes and
-            'Y' in self.mdi.axes and
-            'Z' in self.mdi.axes):
-            # this is fairly mill-like, so go to Z
-            self.next(0)
-            self.next(0)
 
     def set_origin(self, system):
         self.g(0)
@@ -310,8 +305,3 @@ class mdi_control:
         self.next(0)
         self.set_text("P%d" % system, 2)
         self.next(0)
-        if ('X' in self.mdi.axes and
-            'Z' in self.mdi.axes and
-            not 'Y' in self.mdi.axes):
-            # this is fairly lathe-like, so go to Z
-            self.next(0)
