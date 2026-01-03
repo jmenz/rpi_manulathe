@@ -1262,7 +1262,7 @@
                                     <property name="homogeneous">True</property>
                                     <child>
                                       <object class="GtkButton" id="g">
-                                        <property name="label">G/XY</property>
+                                        <property name="label">G/XZ</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
