@@ -374,9 +374,9 @@ class touchy:
             "on_mdi_minus_clicked" : self.mdi_control.minus,
             "on_mdi_keypad_clicked" : self.mdi_control.keypad,
             "on_mdi_g_clicked" : self.mdi_control.g,
-            "on_mdi_gp_clicked" : self.mdi_control.gp,
             "on_mdi_m_clicked" : self.mdi_control.m,
-            "on_mdi_t_clicked" : self.mdi_control.t,
+            "on_touch_x_clicked" : self.mdi_touch_x,
+            "on_touch_z_clicked" : self.mdi_touch_z,
             "on_mdi_select" : self.mdi_control.select,
             "on_mdi_set_tool_clicked" : self.mdi_set_tool,
             "on_mdi_set_origin_clicked" : self.mdi_set_origin,
@@ -661,7 +661,7 @@ class touchy:
         # buttons
         for i in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
                   "minus", "decimal", "flood_on", "flood_off", "mist_on", "mist_off",
-                  "g", "gp", "m", "t", "set_tool", "set_origin", "macro", "estop",
+                  "g", "touch_x", "touch_z", "m", "set_tool", "set_origin", "macro", "estop",
                   "estop_reset", "machine_off", "machine_on", "home_all", "unhome_all",
                   "home_x", "unhome_x", "home_z", "unhome_z", "fo", "so", "rpm", "css", "mv","manual_feed",
                   "manual_mode", "scrolling", "override_limits", "spindle_forward",
@@ -725,6 +725,12 @@ class touchy:
 
     def mdi_set_tool(self, b):
         self.mdi_control.set_tool(self.status.get_current_tool(), self.g10l11)
+
+    def mdi_touch_x(self, b):
+        self.mdi_control.touch_off('x', self.status.get_current_tool())
+    
+    def mdi_touch_z(self, b):
+        self.mdi_control.touch_off('z', self.status.get_current_tool())
 
     def mdi_set_origin(self, b):
         self.mdi_control.set_origin(self.status.get_current_system())

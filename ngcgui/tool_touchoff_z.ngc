@@ -1,0 +1,12 @@
+
+(info: Tool Touch Z)
+o<tool_touchoff_z> sub
+      #<tool_no> =  #1 (=1 Tool Number)
+      #<z>       =  #2 (=2 Z)
+
+T#<tool_no> M61 Q#<tool_no>
+G10 L10 P#<tool_no> Z#<z>
+
+G43 H#<tool_no>
+
+o<tool_touchoff_z> endsub

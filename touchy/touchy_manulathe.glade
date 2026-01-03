@@ -1262,7 +1262,7 @@
                                     <property name="homogeneous">True</property>
                                     <child>
                                       <object class="GtkButton" id="g">
-                                        <property name="label">G/XZ</property>
+                                        <property name="label">G</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
@@ -1272,20 +1272,6 @@
                                       </object>
                                       <packing>
                                         <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkButton" id="gp">
-                                        <property name="label">G/R&#x3B8;</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="focus_on_click">False</property>
-                                        <signal name="clicked" handler="on_mdi_gp_clicked"/>
-                                      </object>
-                                      <packing>
-                                        <property name="position">1</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -1299,18 +1285,32 @@
                                         <signal name="clicked" handler="on_mdi_m_clicked"/>
                                       </object>
                                       <packing>
-                                        <property name="position">2</property>
+                                        <property name="position">1</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkButton" id="t">
-                                        <property name="label">T</property>
+                                      <object class="GtkButton" id="touch_x">
+                                        <property name="label">Touch X</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
                                         <property name="use_underline">True</property>
                                         <property name="focus_on_click">False</property>
-                                        <signal name="clicked" handler="on_mdi_t_clicked"/>
+                                        <signal name="clicked" handler="on_touch_x_clicked"/>
+                                      </object>
+                                      <packing>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkButton" id="touch_z">
+                                        <property name="label">Touch Z</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="use_underline">True</property>
+                                        <property name="focus_on_click">False</property>
+                                        <signal name="clicked" handler="on_touch_z_clicked"/>
                                       </object>
                                       <packing>
                                         <property name="position">3</property>

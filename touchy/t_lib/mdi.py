@@ -268,6 +268,13 @@ class mdi_control:
     def t(self, b):
         self.g(b, "T")
 
+    def touch_off(self, axis, tool):
+        self.g(0, "O<tool_touchoff_%s> call" % axis)
+        self.next(0)
+        if (tool > 0):
+            self.set_text("Tool-Number %d" % tool, 1)
+            self.next(0)
+
     def o(self, b):
         old_code = self.labels[0].get_text()
         ocodes = self.mdi.ocodes
