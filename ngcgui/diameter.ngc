@@ -1,16 +1,20 @@
-
 (info: Diameter)
 o<diameter> sub
          #<Start_Dia> =  #1 (=20.0 Start Diameter)
          #<Final_Dia> =  #2 (=10.0 Final Diameter)
       #<Z_StartOfCut> =  #3 (=0 Start of Cut)
         #<Z_EndOfCut> =  #4 (=-10.0 End of Cut)
-         #<Depth_Cut> =  #5 (=0.5 Depth of Cut)
+         #<Depth_Cut> =  #5 (=1.0 Depth of Cut)
           #<FeedRate> =  #6 (=0.1 Feed Rate)
       #<SurfaceSpeed> =  #7 (=40 Surface Speed)
 #<Back_Travel_Offset> =  #8 (=0.5 Back Travel Offset)
            #<Max_RPM> =  #9 (=1200 Max RPM)
        #<Spring_Cuts> = #10 (=0 Spring Cuts)
+    #<Last_Cut_Depth> = #11 (=0 Last Cut Depth)
+
+o100 if [#<Last_Cut_Depth> EQ 0]
+    #<Last_Cut_Depth> = #<Depth_Cut>
+o100 endif
 
 ; G43: toollength offset
 ; G7:  diameter mode
@@ -18,44 +22,103 @@ o<diameter> sub
 G95
 G43 G7 G96 D#<Max_RPM> S#<SurfaceSpeed>
 
-; Turn the OD
 M3
 
 G0 X#<Start_Dia> Z#<Z_StartOfCut>
 #<Current_Dia>=#<Start_Dia>
-#<Diff>=[#<Start_Dia>-#<Final_Dia>]
+#<Diff_Total>=[#<Start_Dia>-#<Final_Dia>]
 
-o100    if [#<Diff> LT 0]
-        #<Depth_Cut> = [-#<Depth_Cut>]
-        #<Back_Travel_Offset> = [-#<Back_Travel_Offset>]
-o100    endif
+o110 if [#<Diff_Total> LT 0]
+    ; ID Turning
+    #<Cut_Sign> = 1
+    #<Retract_Sign> = -1
+o110 else
+    ; OD Turning
+    #<Cut_Sign> = -1
+    #<Retract_Sign> = 1
+o110 endif
 
-o101    while [ABS[#<Diff>] NE 0]
+; --- Main Cutting Logic ---
 
-o1011   if [ABS[#<Diff>] GT ABS[#<Depth_Cut>]]
-        #<Current_Dia>=[#<Current_Dia>-#<Depth_Cut>]
-o1011   else
-        #<Current_Dia>=#<Final_Dia>
-o1011   endif
+; Check if we can do it in a single pass (Total material < Last_Cut)
+o120 if [ABS[#<Diff_Total>] LE #<Last_Cut_Depth>]
+    (debug, Single Pass Operation)
+    #<Current_Dia> = #<Final_Dia>
+    G1 X#<Current_Dia> F#<FeedRate>
+    G1 Z#<Z_EndOfCut>
+    G0 X[#<Current_Dia> + [#<Retract_Sign> * #<Back_Travel_Offset>]]
+    G0 Z#<Z_StartOfCut>
 
-        #<Diff>=[#<Current_Dia>-#<Final_Dia>]
-        (debug, Left to cut: #<Diff> mm)
+o120 else
+    ; --- Roughing Strategy Required ---
+    
+    ; Calculate the Roughing Target (Stop point before the final finish cut)
+    ; OD: Final + Last_Cut. ID: Final - Last_Cut
+    #<Rough_Target> = [#<Final_Dia> - [#<Cut_Sign> * #<Last_Cut_Depth>]]
+    
+    (debug, Roughing from #<Start_Dia> to target #<Rough_Target>)
 
-        G0 X#<Current_Dia>
-        G1 Z#<Z_EndOfCut> F#<FeedRate>
-        G0 X[#<Current_Dia>+#<Back_Travel_Offset>]
-        Z#<Z_StartOfCut>
-o101 endwhile
+    o130 while [1]
+        ; Calculate distance remaining to the ROUGH target
+        #<Dist_To_Rough> = ABS[#<Current_Dia> - #<Rough_Target>]
+        
+        ; Check if we reached rough target (within tolerance)
+        o131 if [#<Dist_To_Rough> LT 0.001]
+             o130 break
+        o131 endif
 
+        #<Nominal_Cut> = ABS[#<Depth_Cut>]
+        #<Min_Threshold> = [#<Nominal_Cut> / 4]
+
+        ; --- "Smart Absorption" Logic ---
+        ; Calculate what the remainder would be if we took a nominal cut
+        #<Remainder_After_Cut> = [#<Dist_To_Rough> - #<Nominal_Cut>]
+        
+        ; Determine actual cut depth for this pass
+        o132 if [#<Dist_To_Rough> LE #<Nominal_Cut>]
+             ; Less than one pass left to rough target? Take it all.
+             #<This_Pass_Depth> = #<Dist_To_Rough>
+        o132 elseif [#<Remainder_After_Cut> LT #<Min_Threshold>]
+             ; If we cut nominal, the remainder is tiny (Rubbing risk).
+             ; Absorb the remainder into this pass (Penultimate Pass).
+             (debug, Absorbing remainder #<Remainder_After_Cut> into current pass)
+             #<This_Pass_Depth> = #<Dist_To_Rough>
+        o132 else
+             ; Standard cut
+             #<This_Pass_Depth> = #<Nominal_Cut>
+        o132 endif
+        
+        ; Calculate new X position
+        #<Current_Dia> = [#<Current_Dia> + [#<Cut_Sign> * #<This_Pass_Depth>]]
+        
+        (debug, Rough Pass to X#<Current_Dia>)
+        
+        G1 X#<Current_Dia> F#<FeedRate>
+        G1 Z#<Z_EndOfCut>
+        G0 X[#<Current_Dia> + [#<Retract_Sign> * #<Back_Travel_Offset>]]
+        G0 Z#<Z_StartOfCut>
+        
+    o130 endwhile
+
+    ; --- Final Finishing Pass ---
+    ; This cut is exactly Last_Cut_Depth deep
+    (debug, Final Finish Cut from #<Current_Dia> to #<Final_Dia>)
+    #<Current_Dia> = #<Final_Dia>
+    G1 X#<Current_Dia> F#<FeedRate>
+    G1 Z#<Z_EndOfCut>
+    G0 X[#<Current_Dia> + [#<Retract_Sign> * #<Back_Travel_Offset>]]
+    G0 Z#<Z_StartOfCut>
+
+o120 endif
 
 ;Spring cuts
-o103 repeat [#<Spring_Cuts>]
+o140 repeat [#<Spring_Cuts>]
         G1 X#<Final_Dia>
         Z#<Z_EndOfCut>
         X[#<Final_Dia>]
-        G0 X[#<Final_Dia>+#<Back_Travel_Offset>]
+        G0 X[#<Final_Dia> + [#<Retract_Sign> * #<Back_Travel_Offset>]]
         Z#<Z_StartOfCut>
-o103 endrepeat
+o140 endrepeat
 
 G0 X[#<Final_Dia>]
 M5              ; stop spindle
