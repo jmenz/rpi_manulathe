@@ -53,17 +53,13 @@ o120 if [ABS[#<Diff_Total>] LE #<Last_Cut_Depth>]
 o120 else
     ; --- Roughing Strategy Required ---
     
-    ; Calculate the Roughing Target (Stop point before the final finish cut)
-    ; OD: Final + Last_Cut. ID: Final - Last_Cut
     #<Rough_Target> = [#<Final_Dia> - [#<Cut_Sign> * #<Last_Cut_Depth>]]
     
     (debug, Roughing from #<Start_Dia> to target #<Rough_Target>)
 
     o130 while [1]
-        ; Calculate distance remaining to the ROUGH target
         #<Dist_To_Rough> = ABS[#<Current_Dia> - #<Rough_Target>]
         
-        ; Check if we reached rough target (within tolerance)
         o131 if [#<Dist_To_Rough> LT 0.001]
              o130 break
         o131 endif
@@ -72,20 +68,14 @@ o120 else
         #<Min_Threshold> = [#<Nominal_Cut> / 4]
 
         ; --- "Smart Absorption" Logic ---
-        ; Calculate what the remainder would be if we took a nominal cut
         #<Remainder_After_Cut> = [#<Dist_To_Rough> - #<Nominal_Cut>]
         
-        ; Determine actual cut depth for this pass
         o132 if [#<Dist_To_Rough> LE #<Nominal_Cut>]
-             ; Less than one pass left to rough target? Take it all.
              #<This_Pass_Depth> = #<Dist_To_Rough>
         o132 elseif [#<Remainder_After_Cut> LT #<Min_Threshold>]
-             ; If we cut nominal, the remainder is tiny (Rubbing risk).
-             ; Absorb the remainder into this pass (Penultimate Pass).
              (debug, Absorbing remainder #<Remainder_After_Cut> into current pass)
              #<This_Pass_Depth> = #<Dist_To_Rough>
         o132 else
-             ; Standard cut
              #<This_Pass_Depth> = #<Nominal_Cut>
         o132 endif
         
@@ -102,7 +92,6 @@ o120 else
     o130 endwhile
 
     ; --- Final Finishing Pass ---
-    ; This cut is exactly Last_Cut_Depth deep
     (debug, Final Finish Cut from #<Current_Dia> to #<Final_Dia>)
     #<Current_Dia> = #<Final_Dia>
     G1 X#<Current_Dia> F#<FeedRate>

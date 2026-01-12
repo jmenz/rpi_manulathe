@@ -1,4 +1,3 @@
-
 (info: Facing)
 o<facing> sub
       #<Material_Dia> =  #1 (=40.0 Material Diameter)
@@ -10,7 +9,11 @@ o<facing> sub
       #<SurfaceSpeed> =  #7 (=50 Surface Speed)
 #<Back_Travel_Offset> =  #8 (=0.5 Back Travel Offset)
            #<Max_RPM> =  #9 (=1500 Max RPM)
-       #<Spring_Cuts> = #10 (=0 Spring Cuts)
+ #<Last_Cut_Depth> = #10 (=0 Last Cut Depth)
+
+o100 if [#<Last_Cut_Depth> EQ 0]
+    #<Last_Cut_Depth> = #<Depth_Cut>
+o100 endif
 
 ; G95: feed per rev
 ; G43: toollength offset
@@ -23,32 +26,78 @@ M3
 
 G0 X#<Material_Dia> Z#<Z_StartOfCut>
 #<Current_Z>=#<Z_StartOfCut>
+#<Diff_Total>=[#<Z_StartOfCut>-#<Z_EndOfCut>]
 
-o100 while [#<Current_Z> gt #<Z_EndOfCut>]
+o110 if [#<Diff_Total> LT 0]
+    #<Cut_Sign> = 1
+    #<Retract_Sign> = -1
+o110 else
+    #<Cut_Sign> = -1
+    #<Retract_Sign> = 1
+o110 endif
 
-O101   if [#<Current_Z>-#<Depth_Cut> gt #<Z_EndOfCut>]
-         #<Current_Z>=[#<Current_Z>-#<Depth_Cut>]
-O101   else
-         #<Current_Z>=#<Z_EndOfCut>
-O101   endif
+; --- Main Cutting Logic ---
 
-       Z#<Current_Z>
-       G1 X#<Final_Dia> F#<FeedRate>
-       G0 Z[#<Current_Z>+#<Back_Travel_Offset>]
-       X#<Material_Dia>
-o100 endwhile
+o120 if [ABS[#<Diff_Total>] LE #<Last_Cut_Depth>]
+    (debug, Single Pass Operation)
+    #<Current_Z> = #<Z_EndOfCut>
+    
+    G1 Z#<Current_Z> F#<FeedRate>
+    G1 X#<Final_Dia>
+    G0 Z[#<Current_Z> + [#<Retract_Sign> * #<Back_Travel_Offset>]]
+    G0 X#<Material_Dia>
+    G0 Z#<Z_EndOfCut>
 
-o102 repeat [#<Spring_Cuts>]
-       G1 X#<Final_Dia>
-       Z#<Z_EndOfCut>
-       X[#<Final_Dia>]
-       G0 X[#<Final_Dia>+#<Back_Travel_Offset>]
-       Z#<Z_StartOfCut>
-o102 endrepeat
+o120 else
+    ; Roughing required
+    #<Rough_Target> = [#<Z_EndOfCut> - [#<Cut_Sign> * #<Last_Cut_Depth>]]
+    
+    (debug, Roughing from #<Z_StartOfCut> to target #<Rough_Target>)
 
-G0 Z[#<Z_EndOfCut>]
-M5              ; stop spindle
-X#<Material_Dia>
-;G49                 ; cancel tool length offset compensation
+    o130 while [1]
+        #<Dist_To_Rough> = ABS[#<Current_Z> - #<Rough_Target>]
+        
+        o131 if [#<Dist_To_Rough> LT 0.001]
+             o130 break
+        o131 endif
 
+        #<Nominal_Cut> = ABS[#<Depth_Cut>]
+        #<Min_Threshold> = [#<Nominal_Cut> / 4]
+        #<Remainder_After_Cut> = [#<Dist_To_Rough> - #<Nominal_Cut>]
+        
+        o132 if [#<Dist_To_Rough> LE #<Nominal_Cut>]
+             #<This_Pass_Depth> = #<Dist_To_Rough>
+        o132 elseif [#<Remainder_After_Cut> LT #<Min_Threshold>]
+             ; Absorb small remainder to avoid thin final roughing pass
+             (debug, Absorbing remainder #<Remainder_After_Cut>)
+             #<This_Pass_Depth> = #<Dist_To_Rough>
+        o132 else
+             #<This_Pass_Depth> = #<Nominal_Cut>
+        o132 endif
+        
+        #<Current_Z> = [#<Current_Z> + [#<Cut_Sign> * #<This_Pass_Depth>]]
+        
+        (debug, Rough Pass to Z#<Current_Z>)
+        
+        G1 Z#<Current_Z> F#<FeedRate>
+        G1 X#<Final_Dia>
+        G0 Z[#<Current_Z> + [#<Retract_Sign> * #<Back_Travel_Offset>]]
+        G0 X#<Material_Dia>
+        
+    o130 endwhile
+
+    ; Finishing Pass
+    (debug, Final Finish Cut from #<Current_Z> to #<Z_EndOfCut>)
+    #<Current_Z> = #<Z_EndOfCut>
+    
+    G1 Z#<Current_Z> F#<FeedRate>
+    G1 X#<Final_Dia>
+    G0 Z[#<Current_Z> + [#<Retract_Sign> * #<Back_Travel_Offset>]]
+    G0 X#<Material_Dia>
+    
+    G0 Z#<Z_EndOfCut>
+
+o120 endif
+
+M5
 o<facing> endsub
