@@ -7,10 +7,10 @@ o<i-taper-z> sub
 #<D_Start>              = #4  (= 0 Start Diameter)
 #<Angle>                = #5  (= 30 ° Angle)
 #<Depth_Cut>            = #6  (= 1 Depth of Cut)
-#<Feed_Rate>            = #7  (= 30 Feed Rate)
-#<Surface_Speed>        = #8  (= 30 Surface Speed)
+#<Feed_Rate>            = #7  (= 0.1 Feed Rate)
+#<Surface_Speed>        = #8  (= 50 Surface Speed)
 #<Back_Travel_Offset>   = #9  (= 0.5 Back Travel Offset)
-#<Max_RPM>              = #10 (= 1200 Max RPM)
+#<Max_RPM>              = #10 (= 1500 Max RPM)
 
 #<Angle> = ABS[#<Angle>]
 #<Z_Current> = #<Z_Start>
@@ -30,9 +30,11 @@ o101    else
         o1012   endif
 o101    endif
 
+; G95: feed per rev
 ; G43: toollength offset
 ; G7:  diameter mode
 ; G96: constant surface speed
+G95
 G43 G7 G96 D#<Max_RPM> S#<Surface_Speed>
 
 M3; start spindle
