@@ -3793,9 +3793,6 @@
                         <property name="label" translatable="yes">&lt;b&gt;Wheel&lt;/b&gt;</property>
                         <property name="use_markup">True</property>
                       </object>
-                      <packing>
-                        <property name="type">label_item</property>
-                      </packing>
                     </child>
                   </object>
                   <packing>
@@ -3864,9 +3861,6 @@
                         <property name="label" translatable="yes">&lt;b&gt;Spindle&lt;/b&gt;</property>
                         <property name="use_markup">True</property>
                       </object>
-                      <packing>
-                        <property name="type">label_item</property>
-                      </packing>
                     </child>
                   </object>
                 </child>
