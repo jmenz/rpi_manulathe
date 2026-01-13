@@ -3786,11 +3786,8 @@
                           </packing>
                         </child>
                       </object>
-                      <packing>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
-                    <child>
+                    <child type="label">
                       <object class="GtkLabel" id="label1">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">&lt;b&gt;Wheel&lt;/b&gt;</property>
@@ -3860,11 +3857,8 @@
                           </packing>
                         </child>
                       </object>
-                      <packing>
-                        <property name="position">1</property>
-                      </packing>
                     </child>
-                    <child>
+                    <child type="label">
                       <object class="GtkLabel" id="spindle_label">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">&lt;b&gt;Spindle&lt;/b&gt;</property>
