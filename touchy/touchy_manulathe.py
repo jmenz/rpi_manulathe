@@ -155,9 +155,9 @@ class touchy:
         self.default_feedrate = float(self.ini.find("DISPLAY", "DEFAULT_FEED_PER_REV"))
         self.max_feedrate = float(self.ini.find("DISPLAY", "MAX_FEED_PER_REV"))
 
-        self.spindle_default_speed = float(self.ini.find("DISPLAY", "SPINDLE_DEFAULT_SPEED"))
+        self.spindle_default_speed = float(self.ini.find("DISPLAY", "DEFAULT_SPINDLE_0_SPEED"))
+        self.spindle_max_speed = float(self.ini.find("DISPLAY", "MAX_SPINDLE_0_SPEED"))
         self.spindle_increment = float(self.ini.find("DISPLAY", "SPINDLE_INCREMENT"))
-        self.spindle_max_speed = float(self.ini.find("DISPLAY", "SPINDLE_MAX_SPEED"))
 
         self.spindle_speed_val = self.prefs.getpref('spindle_speed', self.spindle_default_speed, float)
         self.css_val = self.prefs.getpref('css_val', 60, float)
@@ -213,7 +213,7 @@ class touchy:
         settings = Gtk.Settings.get_default()
         self.system_theme = settings.get_property("gtk-theme-name")
         if not self.theme_name == "Follow System Theme":
-            settings.set_string_property("gtk-theme-name", self.theme_name, "")
+            settings.props.gtk_theme_name = self.theme_name
 
         # interactive mdi command builder and issuer
         mdi_labels = []
@@ -655,7 +655,40 @@ class touchy:
             if theme == "Follow System Theme":
                 theme = self.system_theme
             settings = Gtk.Settings.get_default()
-            settings.set_string_property("gtk-theme-name", theme, "")
+            settings.props.gtk_theme_name = theme
+
+    def set_font_css(self, widget, font_source):
+        if isinstance(font_source, str):
+            desc = Pango.FontDescription.from_string(font_source)
+        else:
+            desc = font_source
+        
+        family = desc.get_family()
+        size_pt = desc.get_size() // Pango.SCALE
+        css_props = []
+        
+        if family:
+            css_props.append(f"font-family: '{family}';")
+
+        if size_pt > 0:
+            css_props.append(f"font-size: {size_pt}pt;")
+
+        if desc.get_weight() >= Pango.Weight.BOLD:
+            css_props.append("font-weight: bold;")
+
+        if desc.get_style() == Pango.Style.ITALIC:
+            css_props.append("font-style: italic;")
+
+        if css_props:
+            css = f"* {{ {' '.join(css_props)} }}"
+
+            provider = Gtk.CssProvider()
+            provider.load_from_data(css.encode('utf-8'))
+
+            widget.get_style_context().add_provider(
+                provider, 
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            )
 
     def setfont(self):
         # buttons
@@ -672,28 +705,28 @@ class touchy:
                   "toolset_workpiece", "toolset_fixture", "change_theme", "reset_spinde_index", "trigger_lube_cycle", "shut_down"]:
             w = self.get_widget(i)
             if w:
-                w.override_font(self.control_font)
+                self.set_font_css(w, self.control_font)
 
         notebook = self.get_widget('notebook1')
         for i in range(notebook.get_n_pages()):
             w = notebook.get_nth_page(i)
-            notebook.get_tab_label(w).override_font(self.control_font)
+            self.set_font_css(notebook.get_tab_label(w), self.control_font)
 
         # labels
         for i in range(self.num_mdi_labels):
             w = self.get_widget("mdi%d" % i)
-            w.override_font(self.control_font)
+            self.set_font_css(w, self.control_font)
         for i in range(self.num_filechooser_labels):
             w = self.get_widget("filechooser%d" % i)
-            w.override_font(self.control_font)
+            self.set_font_css(w, self.control_font)
         for i in range(self.num_listing_labels):
             w = self.get_widget("listing%d" % i)
-            w.override_font(self.listing_font)
+            self.set_font_css(w, self.listing_font)
         for i in ["mdi", "startup", "manual", "auto", "preferences", "status",
                   "relative", "absolute", "dtg", "ss2label", "status_spindlespeed2",
                   "spindle_stat"]:
             w = self.get_widget(i)
-            w.override_font(self.control_font)
+            self.set_font_css(w, self.control_font)
 
         # dro
         for i in ['xr', 'yr', 'zr', 'ar', 'br', 'cr', 'ur', 'vr', 'wr',
@@ -701,7 +734,7 @@ class touchy:
                   'xd', 'yd', 'zd', 'ad', 'bd', 'cd', 'ud', 'vd', 'wd']:
                 w = self.get_widget(i)
                 if w:
-                    w.override_font(self.dro_font)
+                    self.set_font_css(w, self.dro_font)
                     if "r" in i and not self.rel_textcolor == "default":
                         w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.rel_textcolor))
                     elif "a" in i and not self.abs_textcolor == "default":
@@ -712,14 +745,14 @@ class touchy:
         # spindle info
         for i in ["sp_commanded", "sp_current", "sp_angle"]:
             w = self.get_widget(i)
-            w.override_font(self.dro_font)
+            self.set_font_css(w, self.dro_font)
             if not self.err_textcolor == "default":
                 w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.dtg_textcolor))
 
         # status bar
         for i in ["error"]:
             w = self.get_widget(i)
-            w.override_font(self.error_font)
+            self.set_font_css(w, self.error_font)
             if not self.err_textcolor == "default":
                 w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.err_textcolor))
 
@@ -946,7 +979,7 @@ class touchy:
 
     def _dynamic_tab(self, notebook, text):
         s = Gtk.Socket()
-        notebook.append_page(s, Gtk.Label(" " + text + " "))
+        notebook.append_page(s, Gtk.Label(label=" " + text + " "))
         return s.get_id()
 
     def set_dynamic_tabs(self):
