@@ -55,6 +55,13 @@ def set_active(w, s):
     os = w.get_active()
     if os != s: w.set_active(s)
 
+def set_disabled(w, s):
+    if not w: return
+
+    v = not s
+    os = w.get_sensitive()
+    if os != v: w.set_sensitive(v)
+
 def set_label(w, l):
     if not w: return
     ol = w.get_label()
@@ -406,7 +413,7 @@ class touchy:
             "on_css_clicked" : self.css,
             "on_mv_clicked" : self.mv,
             "on_manual_feed_clicked" : self.manual_feed,
-            "on_manual_clicked" : self.set_manual,
+            "on_manual_clicked" : self.toggle_manual,
             "on_scrolling_clicked" : self.scrolling,
             "on_override_limits_clicked" : self.linuxcnc.override_limits,
             "on_reset_spinde_index_clicked" : self.reset_spindle_index,
@@ -608,10 +615,13 @@ class touchy:
         self.get_widget('notebook1').set_current_page(3)
         self.wheel = "scrolling"
 
-    def set_manual(self, b):
+    def toggle_manual(self, b):
         if self.radiobutton_mask: return
-        self.linuxcnc.set_manual_mode(b)
-
+        if self.status.is_manual_mode == 1 :
+            self.linuxcnc.set_auto_mode(b)
+        else:
+            self.linuxcnc.set_manual_mode(b)
+        
     def toolset_fixture(self, b):
         if self.radiobutton_mask: return
         self.prefs.putpref('toolsetting_fixture', 1)
@@ -917,6 +927,8 @@ class touchy:
         set_active(self.get_widget("fullscreen_off"), not self.fullscreen)
         set_active(self.get_widget("toolset_workpiece"), not self.g10l11)
         set_active(self.get_widget("toolset_fixture"), self.g10l11)
+
+        set_disabled(self.get_widget("manual_mode"), self.status.is_program_executing == 1)
         self.radiobutton_mask = 0
 
         d = self.hal.wheel()

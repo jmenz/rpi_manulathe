@@ -114,6 +114,10 @@ class emc_control:
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
 
+        def set_auto_mode(self, b):
+                if self.masked: return
+                self.emccommand.mode(self.emc.MODE_AUTO)
+
         def override_limits(self, b):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
@@ -286,6 +290,7 @@ class emc_status:
                 self.emcerror = emc.error_channel()
                 
                 self.is_manual_mode = 0
+                self.is_program_executing = 0
 
         def dro_inch(self, b):
                 self.mm = 0
