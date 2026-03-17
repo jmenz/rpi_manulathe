@@ -109,7 +109,7 @@ net spindle-pos           => mix.x.spindle-pos
 net spindle-feedback-loop => mix.x.spindle-cmd-rpm => mix.x.css-max-rpm
 net x-offset                 mix.x.css-axis-offset
 net css-velocity          => mix.x.css-velocity
-net css-enabled           => mix.x.css-enabled
+net css-active           => mix.x.css-enabled
 net x-axis-position          joint.0.pos-fb => mix.x.css-axis-position
 
 net joy-x-scaled    bench_test.joystick-val-f   => mix.x.joy-in

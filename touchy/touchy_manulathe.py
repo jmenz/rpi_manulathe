@@ -166,12 +166,10 @@ class touchy:
         self.spindle_default_speed = float(self.ini.find("DISPLAY", "DEFAULT_SPINDLE_0_SPEED"))
         self.spindle_max_speed = float(self.ini.find("DISPLAY", "MAX_SPINDLE_0_SPEED"))
         self.spindle_increment = float(self.ini.find("DISPLAY", "SPINDLE_INCREMENT"))
+        self.default_css = float(self.ini.find("DISPLAY", "DEFAULT_CSS"))
 
         self.spindle_speed_val = self.prefs.getpref('spindle_speed', self.spindle_default_speed, float)
-        self.css_val = self.prefs.getpref('css_val', 60, float)
-
-        self.css_active = 0
-        self.last_reset_state = 0
+        self.css_val = self.prefs.getpref('css_val', self.default_css, float)
 
         # initial screen setup
         if os.path.exists(themedir):
@@ -841,15 +839,12 @@ class touchy:
             self.linuxcnc.spindle_set_speed(self.spindle_speed_val)
 
     def wheelCSSUpdate(self, d):
+        if self.hal.wheelreset:
+            self.css_val = self.default_css
+
         if d != 0:
             self.css_val += d
             if self.css_val < 0: self.css_val = 0
-
-        current_reset = self.hal.wheelreset
-        if current_reset and not self.last_reset_state:
-            self.css_active = not self.css_active
-
-        self.last_reset_state = current_reset
 
     def wheelMvUpdate(self, d):
         if self.hal.wheelreset:
@@ -955,7 +950,7 @@ class touchy:
             set_text(self.get_widget("rpm"), "RPM: %d" % self.spindle_speed_val)
             set_text(self.get_widget("css"), "CSS: %d" % self.css_val)
 
-        css_color = self.colors['active_btn_fg'] if self.css_active else self.colors['selected_fg']
+        css_color = self.colors['active_btn_fg'] if self.hal.css_enabled else self.colors['selected_fg']
         set_fg(self.get_widget("css"), css_color)
 
         set_text(self.get_widget("mv"), "MV: %.2f" % self.mv_val)

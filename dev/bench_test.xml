@@ -69,6 +69,13 @@
             <font>("Helvetica",14)</font>
             <bg>"#90eea0"</bg> <width>6</width>
         </button>
+        
+        <label><text>" "</text></label>
+        <checkbutton>
+            <halpin>"css"</halpin>
+            <text>"CSS On/Off"</text>
+            <font>("Helvetica",14)</font>
+        </checkbutton>
     </hbox>
   </labelframe>
   <labelframe text="Manual Feed">

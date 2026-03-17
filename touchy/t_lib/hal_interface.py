@@ -111,7 +111,9 @@ class hal_interface:
         self.c.newpin("x-summ-offset", hal.HAL_FLOAT, hal.HAL_OUT)
         self.x_summ_offset = 0
 
-        self.c.newpin("css-enabled", hal.HAL_BIT, hal.HAL_OUT)
+        self.c.newpin("css-enabled", hal.HAL_BIT, hal.HAL_IN)
+        self.css_enabled = 0
+        self.c.newpin("css-active", hal.HAL_BIT, hal.HAL_OUT)
         self.c.newpin("css-velocity", hal.HAL_FLOAT, hal.HAL_OUT)
 
         self.c.ready()
@@ -297,8 +299,10 @@ class hal_interface:
         self.c["manual-feedrate"] = self.manual_feedrate
 
         self.emc_stat.poll()
+        self.css_enabled = self.c["css-enabled"]
+        self.c["css-active"] = self.css_enabled and self.emc_stat.task_mode != self.emc.MODE_AUTO
+
         self.c["css-velocity"] = self.gui.css_val
-        self.c["css-enabled"] = self.gui.css_active and self.emc_stat.task_mode != self.emc.MODE_AUTO
 
         self.c["jog.active"] = self.emc_stat.task_mode == self.emc.MODE_MANUAL
 

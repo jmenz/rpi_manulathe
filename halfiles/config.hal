@@ -90,10 +90,7 @@ net machine-on => hal_gpio.GPIO8-out #main panel indication
 
 # E-Stop
 net estop and.estop.out => iocontrol.0.emc-enable-in
-
 net hardware-estop hm2_7i92.0.gpio.020.in => and.estop.in0
-
-net motion-pause motion.feed-inhibit hal_gpio.GPIO6-in-not
 
 #Limit Switches
 

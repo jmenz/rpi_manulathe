@@ -4,14 +4,18 @@ net cycle_start bench_test.cycle-start => touchy.cycle-start
 net abort bench_test.cycle-stop => touchy.abort
 net wheelreset bench_test.wheel-reset touchy.wheel-reset
 
+net css-enabled bench_test.css
 
 
 # Manual feed
 net manual-feed-rate touchy.manual-feedrate
 
 net x-offset touchy.x-summ-offset
+
 net css-enabled touchy.css-enabled
+net css-active touchy.css-active
 net css-velocity touchy.css-velocity
+
 
 setp touchy.lube-auto 1
 
