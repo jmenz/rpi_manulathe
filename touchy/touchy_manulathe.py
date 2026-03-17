@@ -133,7 +133,6 @@ class touchy:
         self.num_filechooser_labels = 11
         self.num_listing_labels = 20
 
-        self.wheelinc = 0
         self.wheel = "fo"
         self.radiobutton_mask = 0
         self.resized_wheelbuttons = 0
@@ -946,9 +945,8 @@ class touchy:
             self.wheelManualFeedUpdate(d)
 
         if self.wheel == "scrolling":
-            d0 = d * 10 ** (2 - self.wheelinc)
             if d != 0:
-                self.listing.next(None, d0)
+                self.listing.next(None, d)
 
         set_text(self.get_widget("fo"), "FO: %d%%" % self.fo_val)
         set_text(self.get_widget("so"), "SO: %d%%" % self.so_val)

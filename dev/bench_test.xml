@@ -32,9 +32,9 @@
     <hbox>
         <scale>
           <halpin>"mpg"</halpin>
-          <resolution>1</resolution>
+          <resolution>4</resolution>
           <min_>0.0</min_>
-          <max_>1000.0</max_>
+          <max_>80.0</max_>
           <initval>0.0</initval>
           <width>50</width>
         </scale>
