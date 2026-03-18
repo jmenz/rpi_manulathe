@@ -27,7 +27,7 @@ void update_mux(void *arg, long period) {
         *(hal_data->fb_out) = *(hal_data->motor_cmd_in);
     } 
     else if (current_mode == MODE_C_AXIS) {
-        double scaled_enc = *(hal_data->enc_in) ;//* 360.0;
+        double scaled_enc = *(hal_data->enc_in) * 360.0;
 
         if (prev_mode == MODE_SPINDLE) {
             // The transition edge
