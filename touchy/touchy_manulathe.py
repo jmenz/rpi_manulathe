@@ -543,10 +543,10 @@ class touchy:
         self.linuxcnc.unhome_selected(0)
 
     def home_z_axis(self, b):
-        self.linuxcnc.home_selected(2)
+        self.linuxcnc.home_selected(1)
 
     def unhome_z_axis(self, b):
-        self.linuxcnc.unhome_selected(2)
+        self.linuxcnc.unhome_selected(1)
 
     def reset_spindle_index(self, b):
         self.hal.resetSpindel(1)
