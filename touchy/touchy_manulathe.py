@@ -406,6 +406,8 @@ class touchy:
             "on_unhome_x_clicked" : self.unhome_x_axis,
             "on_home_z_clicked" : self.home_z_axis,
             "on_unhome_z_clicked" : self.unhome_z_axis,
+            "on_home_c_clicked" : self.home_c_axis,
+            "on_unhome_c_clicked" : self.unhome_c_axis,
             "on_fo_clicked" : self.fo,
             "on_so_clicked" : self.so,
             "on_rpm_clicked" : self.rpm,
@@ -543,10 +545,16 @@ class touchy:
         self.linuxcnc.unhome_selected(0)
 
     def home_z_axis(self, b):
-        self.linuxcnc.home_selected(1)
+        self.linuxcnc.home_selected(2)
 
     def unhome_z_axis(self, b):
-        self.linuxcnc.unhome_selected(1)
+        self.linuxcnc.unhome_selected(2)
+
+    def home_c_axis(self, b):
+        self.linuxcnc.home_selected(5)
+
+    def unhome_c_axis(self, b):
+        self.linuxcnc.unhome_selected(5)
 
     def reset_spindle_index(self, b):
         self.hal.resetSpindel(1)
@@ -703,7 +711,7 @@ class touchy:
                   "minus", "decimal", "flood_on", "flood_off", "mist_on", "mist_off",
                   "g", "touch_x", "touch_z", "m", "set_tool", "set_origin", "macro", "estop",
                   "estop_reset", "machine_off", "machine_on", "home_all", "unhome_all",
-                  "home_x", "unhome_x", "home_z", "unhome_z", "fo", "so", "rpm", "css", "mv","manual_feed",
+                  "home_x", "unhome_x", "home_z", "unhome_z", "home_c", "unhome_c", "fo", "so", "rpm", "css", "mv","manual_feed",
                   "manual_mode", "scrolling", "override_limits", "spindle_forward",
                   "spindle_off", "spindle_reverse", "spindle_faster", "spindle_slower",
                   "dro_commanded", "dro_actual", "dro_inch", "dro_mm",

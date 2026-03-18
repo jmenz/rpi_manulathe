@@ -719,6 +719,38 @@
                                         <property name="bottom_attach">2</property>
                                       </packing>
                                     </child>
+                                    <child>
+                                      <object class="GtkButton" id="home_c">
+                                        <property name="label" translatable="yes">Home C</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="use_underline">True</property>
+                                        <property name="focus_on_click">False</property>
+                                        <signal name="clicked" handler="on_home_c_clicked"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">3</property>
+                                        <property name="right_attach">4</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkButton" id="unhome_c">
+                                        <property name="label" translatable="yes">Unhome C</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="use_underline">True</property>
+                                        <property name="focus_on_click">False</property>
+                                        <signal name="clicked" handler="on_unhome_c_clicked"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">3</property>
+                                        <property name="right_attach">4</property>
+                                        <property name="top_attach">1</property>
+                                        <property name="bottom_attach">2</property>
+                                      </packing>
+                                    </child>
                                   </object>
                                 </child>
                               </object>
