@@ -1,23 +1,23 @@
 
 ######## BUTTONS
-net cycle_start hal_gpio.GPIO10-in-not => touchy.cycle-start
-net abort hal_gpio.GPIO9-in-not => touchy.abort
-net single_block hal_gpio.GPIO11-in-not => touchy.single-block
-net css-enabled hal_gpio.GPIO6-in-not
+net cycle_start RP1.in-10-not => touchy.cycle-start
+net abort RP1.in-09-not => touchy.abort
+net single_block RP1.in-11-not => touchy.single-block
+net css-enabled RP1.in-06-not
 
 ######## Spindle speed display
 net s-position => touchy.spindle-pos
 net s-velocity-rpm-filtered => touchy.spindle-velocity
 
 ######### INDICATOR
-net program-status-indicator touchy.status-indicator hal_gpio.GPIO7-out
+net program-status-indicator touchy.status-indicator RP1.out-07
 
 ########## WHEEL
 setp hm2_7i92.0.encoder.03.scale 4
 net touchy-wheel-counts hm2_7i92.0.encoder.03.count => touchy.wheel-counts
 
 ######### WHEELRESET
-net wheelreset hal_gpio.GPIO5-in-not touchy.wheel-reset
+net wheelreset RP1.in-05-not touchy.wheel-reset
 
 ######### Spindle RESET
 net reset-spindle-index touchy.reset-spindel-index hm2_7i92.0.encoder.02.reset

@@ -16,17 +16,24 @@ loadrt timedelay   names=delay.servo-reset-alarm
 
 loadrt jog_feed_controller names=mix.x
 
-loadrt hal_gpio inputs=GPIO4,GPIO17,GPIO27,GPIO22,GPIO10,GPIO9,GPIO11,GPIO5,GPIO6,GPIO13,GPIO19,GPIO26 \
-                outputs=GPIO14,GPIO15,GPIO18,GPIO23,GPIO24,GPIO25,GPIO7,GPIO8 \
+
+loadrt RP1 gpio_in=4,17,27,22,10,9,11,5,6,13,19,26 \
+                gpio_out=14,15,18,23,24,25,7,8 \
+                # gpio_pull_up=26,19
+
+# loadrt hal_gpio inputs=GPIO4,GPIO17,GPIO27,GPIO22,GPIO10,GPIO9,GPIO11,GPIO5,GPIO6,GPIO13,GPIO19,GPIO26 \
+                # outputs=GPIO14,GPIO15,GPIO18,GPIO23,GPIO24,GPIO25,GPIO7,GPIO8 \
 #                invert=GPIO20 \
 
 loadusr -W t3d_servo slave=1
 
 # add RT functions to the servo thread
-addf hal_gpio.read            servo-thread
+addf RP1.read-gpio           servo-thread
+# addf hal_gpio.read            servo-thread
 addf motion-command-handler   servo-thread
 addf motion-controller        servo-thread
-addf hal_gpio.write           servo-thread
+addf RP1.write-gpio           servo-thread
+# addf hal_gpio.write           servo-thread
 
 addf lowpass.spindle-rpm      servo-thread
 addf scale.s-rpm              servo-thread
@@ -44,8 +51,8 @@ net machine-on <= motion.motion-enabled
 # net machine-on => hm2_7i92.0.gpio.019.out #general 48v enable
 # net machine-on => hm2_7i92.0.gpio.026.out #spindle enable
 # net machine-on => hm2_7i92.0.gpio.027.out #stepper motor enable
-net machine-on => hal_gpio.GPIO8-out #main panel indication
-net machine-on => hal_gpio.GPIO24-out #spindle fan
+# net machine-on => hal_gpio.GPIO8-out #main panel indication
+# net machine-on => hal_gpio.GPIO24-out #spindle fan
 
 # net lubrication iocontrol.0.coolant-flood => hm2_7i92.0.gpio.023.out # oil TEMP
 
@@ -54,7 +61,7 @@ net estop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
 
 # net hardware-estop hm2_7i92.0.gpio.020.in => and.estop.in0
 
-net motion-pause motion.feed-inhibit hal_gpio.GPIO6-in-not
+# net motion-pause motion.feed-inhibit hal_gpio.GPIO6-in-not
 
 #Limit Switches
 

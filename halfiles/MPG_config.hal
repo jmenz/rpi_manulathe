@@ -46,8 +46,8 @@ net css-rpm         <= mix.x.css-rpm-abs
 net x-jog-final     mix.x.counts-out => joint.0.jog-counts => axis.x.jog-counts
 net x-jog-mode      mix.x.vel-mode-out   => joint.0.jog-vel-mode => axis.x.jog-vel-mode
 
-net x-manual-feed-positive hal_gpio.GPIO4-in-not  => mix.x.feed-positive
-net x-manual-feed-negative hal_gpio.GPIO17-in-not => mix.x.feed-negative
+net x-manual-feed-positive RP1.in-04-not  => mix.x.feed-positive
+net x-manual-feed-negative RP1.in-17-not => mix.x.feed-negative
 
 net manual-feed-rate mix.x.feed-per-rev
 
@@ -89,8 +89,8 @@ net s-rpm-commanded => mix.z.spindle-cmd-rpm
 net z-jog-final     mix.z.counts-out => joint.1.jog-counts => axis.z.jog-counts
 net z-jog-mode      mix.z.vel-mode-out   => joint.1.jog-vel-mode => axis.z.jog-vel-mode
 
-net z-manual-feed-positive hal_gpio.GPIO22-in-not => mix.z.feed-positive
-net z-manual-feed-negative hal_gpio.GPIO27-in-not => mix.z.feed-negative
+net z-manual-feed-positive RP1.in-22-not => mix.z.feed-positive
+net z-manual-feed-negative RP1.in-27-not => mix.z.feed-negative
 
 net manual-feed-rate mix.z.feed-per-rev
 

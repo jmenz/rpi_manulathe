@@ -15,12 +15,6 @@ autologin-user-timeout=0
 autologin-session=xfce
 ```
 
-### Install custom dark theme
-```
-cd ~/linuxcnc/configs/orange-pi-lathe
-sudo sh ./install-theme.sh
-```
-
 ### Add custom display resolution (optional)
 ```
 cp additional_files/.xsessionrc ~/.xsessionrc
@@ -37,7 +31,14 @@ Add the next command to autoload (Application->Settings->Session and Startup->Ap
 /usr/bin/linuxcnc '~/linuxcnc/configs/rpi_manulathe/config.ini'
 ```
 
-not sure:
+### Install components
+```
+cd ~/linuxcnc/configs/rpi_manulathe/components/
+
+sudo halcompile --install RP1.c
+sudo halcompile --install ffpv_cl.c
+```
+optional: 
 sudo apt install libgpiod-dev
 
 
