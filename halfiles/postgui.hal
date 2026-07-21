@@ -29,7 +29,7 @@ net spindle-stop hm2_7i92.0.7i73.0.0.input-21-not => touchy.spindle-stop
 
 #Lubrication
 setp touchy.lube-auto 1
-setp touchy.lube-distance 5000
+setp touchy.lube-distance 3800
 net lubrication-pump touchy.lube-pump-on => hm2_7i92.0.gpio.023.out
 
 # Manual feed
