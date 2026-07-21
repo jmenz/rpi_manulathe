@@ -17,11 +17,11 @@ import atexit
 import time
 
 class hal_interface:
-    def __init__(self, gui, emc_control, mdi_control, emc):
+    def __init__(self, gui, emc_control, mdi_control, emc, emcstat):
         self.gui = gui
         self.emc_control = emc_control
         self.emc = emc
-        self.emc_stat = self.emc.stat()
+        self.emc_stat = emcstat
         self.mdi_control = mdi_control
         self.c = hal.component("touchy")
         self.c.newpin("status-indicator", hal.HAL_BIT, hal.HAL_OUT)
@@ -298,7 +298,7 @@ class hal_interface:
 
         self.c["manual-feedrate"] = self.manual_feedrate
 
-        self.emc_stat.poll()
+        # emc_stat is shared and already polled this tick by emc_status.periodic()
         self.css_enabled = self.c["css-enabled"]
         self.c["css-active"] = self.css_enabled and self.emc_stat.task_mode != self.emc.MODE_AUTO
 

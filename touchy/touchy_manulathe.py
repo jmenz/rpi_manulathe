@@ -221,13 +221,16 @@ class touchy:
         if not self.theme_name == "Follow System Theme":
             settings.props.gtk_theme_name = self.theme_name
 
+        # single NML status channel shared by the whole GUI
+        self.emcstat = linuxcnc.stat()
+
         # interactive mdi command builder and issuer
         mdi_labels = []
         mdi_eventboxes = []
         for i in range(self.num_mdi_labels):
             mdi_labels.append(self.get_widget("mdi%d" % i))
             mdi_eventboxes.append(self.get_widget("eventbox_mdi%d" % i))
-        self.mdi_control = mdi.mdi_control(Gtk, linuxcnc, mdi_labels, mdi_eventboxes, self.colors)
+        self.mdi_control = mdi.mdi_control(Gtk, linuxcnc, mdi_labels, mdi_eventboxes, self.colors, self.emcstat)
         if self.ini:
             macros = self.ini.findall("TOUCHY", "MACRO")
             if len(macros) > 0:
@@ -243,9 +246,9 @@ class touchy:
         self.listing = listing.listing(Gtk, linuxcnc, listing_labels, listing_eventboxes, self.colors)
 
         # emc interface
-        self.linuxcnc = emc_interface.emc_control(linuxcnc, self.listing, self.get_widget("error"))
+        self.linuxcnc = emc_interface.emc_control(linuxcnc, self.listing, self.get_widget("error"), self.emcstat)
         self.linuxcnc.continuous_jog_velocity(self.mv_val)
-        self.hal = hal_interface.hal_interface(self, self.linuxcnc, self.mdi_control, linuxcnc)
+        self.hal = hal_interface.hal_interface(self, self.linuxcnc, self.mdi_control, linuxcnc, self.emcstat)
         self.hal.manual_feedrate = self.manual_feedrate_val
 
         # silly file chooser
@@ -294,7 +297,8 @@ class touchy:
                                                self.get_widget("override_limits"),
                                                stats,
                                                floods, mists, spindles, prefs,
-                                               opstop, blockdel, spindle_values)
+                                               opstop, blockdel, spindle_values,
+                                               self.emcstat)
 
         self.current_file = self.status.emcstat.file
         # check the ini file if UNITS are set to mm"
@@ -876,7 +880,7 @@ class touchy:
 
     def periodic_radiobuttons(self):
         self.radiobutton_mask = 1
-        s = linuxcnc.stat()
+        s = self.emcstat
         s.poll()
         # Show effect of external override inputs
         self.fo_val = s.feedrate * 100

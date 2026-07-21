@@ -16,9 +16,9 @@ import os
 from __main__ import set_active, set_text
 
 class emc_control:
-        def __init__(self, emc, listing, error):
+        def __init__(self, emc, listing, error, emcstat):
                 self.emc = emc
-                self.emcstat = emc.stat()
+                self.emcstat = emcstat
                 self.emccommand = emc.command()
                 self.masked = 0
                 self.sb = 0
@@ -258,7 +258,8 @@ class emc_status:
                      dro_table,
                      error,
                      estops, machines, override_limit, status,
-                     floods, mists, spindles, prefs, opstop, blockdel, spindle_values):
+                     floods, mists, spindles, prefs, opstop, blockdel, spindle_values,
+                     emcstat):
                 self.gtk = gtk
                 self.emc = emc
                 self.listing = listing
@@ -286,7 +287,7 @@ class emc_status:
                 self.machine_units_mm=0
                 self.unit_convert=[1]*9
                 self.actual = 0
-                self.emcstat = emc.stat()
+                self.emcstat = emcstat
                 self.emcerror = emc.error_channel()
                 
                 self.is_manual_mode = 0

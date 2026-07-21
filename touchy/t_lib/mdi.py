@@ -28,10 +28,10 @@
 from gi.repository import Gdk
 
 class mdi:
-    def __init__(self, emc):
+    def __init__(self, emc, emcstat):
         self.clear()
         self.emc = emc
-        self.emcstat = emc.stat()
+        self.emcstat = emcstat
         self.emccommand = emc.command()
 
         self.emcstat.poll()
@@ -156,7 +156,7 @@ class mdi:
 
 
 class mdi_control:
-    def __init__(self, gtk, emc, labels, eventboxes, colors):
+    def __init__(self, gtk, emc, labels, eventboxes, colors, emcstat):
         self.labels = labels
         self.eventboxes = eventboxes
         self.colors = colors
@@ -164,8 +164,8 @@ class mdi_control:
         self.numwords = 1
         self.selected = 0
         self.gtk = gtk
-        
-        self.mdi = mdi(emc)
+
+        self.mdi = mdi(emc, emcstat)
         
         for i in range(self.numlabels):
             self.not_editing(i)

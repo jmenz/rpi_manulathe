@@ -77,7 +77,7 @@ net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 
 net x-feedbck-loop joint.0.motor-pos-cmd => joint.0.motor-pos-fb 
 net y-feedbck-loop joint.1.motor-pos-cmd => joint.1.motor-pos-fb
-net spindle-feedback-loop spindle.0.speed-out => spindle.0.speed-in
+net spindle-feedback-loop spindle.0.speed-out-rps => spindle.0.speed-in
 
 setp spindle.0.at-speed 1
 
