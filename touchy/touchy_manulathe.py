@@ -62,11 +62,6 @@ def set_disabled(w, s):
     os = w.get_sensitive()
     if os != v: w.set_sensitive(v)
 
-def set_label(w, l):
-    if not w: return
-    ol = w.get_label()
-    if ol != l: w.set_label(l)
-
 def set_text(w, t):
     if not w: return
     ot = w.get_label()
@@ -81,6 +76,13 @@ def hide_widget(w):
     if not w: return
     if w.get_visible():
         w.hide()
+
+def set_fg(w, color, state=Gtk.StateFlags.NORMAL):
+    if not w: return
+
+    if getattr(w, '_last_fg_color', None) != color:
+        w.modify_fg(state, color)
+        w._last_fg_color = color
 
 import linuxcnc
 from t_lib import emc_interface
@@ -131,7 +133,6 @@ class touchy:
         self.num_filechooser_labels = 11
         self.num_listing_labels = 20
 
-        self.wheelinc = 0
         self.wheel = "fo"
         self.radiobutton_mask = 0
         self.resized_wheelbuttons = 0
@@ -165,12 +166,10 @@ class touchy:
         self.spindle_default_speed = float(self.ini.find("DISPLAY", "DEFAULT_SPINDLE_0_SPEED"))
         self.spindle_max_speed = float(self.ini.find("DISPLAY", "MAX_SPINDLE_0_SPEED"))
         self.spindle_increment = float(self.ini.find("DISPLAY", "SPINDLE_INCREMENT"))
+        self.default_css = float(self.ini.find("DISPLAY", "DEFAULT_CSS"))
 
         self.spindle_speed_val = self.prefs.getpref('spindle_speed', self.spindle_default_speed, float)
-        self.css_val = self.prefs.getpref('css_val', 60, float)
-
-        self.css_active = 0
-        self.last_reset_state = 0
+        self.css_val = self.prefs.getpref('css_val', self.default_css, float)
 
         # initial screen setup
         if os.path.exists(themedir):
@@ -566,9 +565,7 @@ class touchy:
                 remaining = self.hal.c["lube-distance"] - self.hal.traveled_distance
                 new_label = "Lube (auto in %d mm)" % int(remaining)
 
-        lube_btn = self.get_widget("trigger_lube_cycle")
-        if lube_btn.get_label() != new_label:
-            lube_btn.set_label(new_label)
+        set_text(self.get_widget("trigger_lube_cycle"), new_label)
 
     def spindle_forward(self, b):
         self.linuxcnc.spindle_forward(self.spindle_speed_val)
@@ -842,15 +839,12 @@ class touchy:
             self.linuxcnc.spindle_set_speed(self.spindle_speed_val)
 
     def wheelCSSUpdate(self, d):
+        if self.hal.wheelreset:
+            self.css_val = self.default_css
+
         if d != 0:
             self.css_val += d
             if self.css_val < 0: self.css_val = 0
-
-        current_reset = self.hal.wheelreset
-        if current_reset and not self.last_reset_state:
-            self.css_active = not self.css_active
-
-        self.last_reset_state = current_reset
 
     def wheelMvUpdate(self, d):
         if self.hal.wheelreset:
@@ -946,21 +940,21 @@ class touchy:
             self.wheelManualFeedUpdate(d)
 
         if self.wheel == "scrolling":
-            d0 = d * 10 ** (2 - self.wheelinc)
             if d != 0:
-                self.listing.next(None, d0)
+                self.listing.next(None, d)
 
-        self.get_widget("fo").set_label("FO: %d%%" % self.fo_val)
-        self.get_widget("so").set_label("SO: %d%%" % self.so_val)
+        set_text(self.get_widget("fo"), "FO: %d%%" % self.fo_val)
+        set_text(self.get_widget("so"), "SO: %d%%" % self.so_val)
 
         if (self.status.is_manual_mode == 1):
-            self.get_widget("rpm").set_label("RPM: %d" % self.spindle_speed_val)
-            self.get_widget("css").set_label("CSS: %d" % self.css_val)
-        css_color = self.colors['active_btn_fg'] if self.css_active else self.colors['selected_fg']
-        self.get_widget("css").modify_fg(Gtk.StateFlags.NORMAL, css_color)
+            set_text(self.get_widget("rpm"), "RPM: %d" % self.spindle_speed_val)
+            set_text(self.get_widget("css"), "CSS: %d" % self.css_val)
 
-        self.get_widget("mv").set_label("MV: %.2f" % self.mv_val)
-        self.get_widget("manual_feed").set_label("Feed: %.3f" % self.manual_feedrate_val)
+        css_color = self.colors['active_btn_fg'] if self.hal.css_enabled else self.colors['selected_fg']
+        set_fg(self.get_widget("css"), css_color)
+
+        set_text(self.get_widget("mv"), "MV: %.2f" % self.mv_val)
+        set_text(self.get_widget("manual_feed"), "Feed: %.3f" % self.manual_feedrate_val)
 
         if (self.hal.spindle_forward == 1):
             self.spindle_forward(0)

@@ -14,7 +14,7 @@
     </hbox>
   </labelframe>
 
-  <labelframe text="Hand Turn Spindle">
+  <!-- <labelframe text="Hand Turn Spindle">
     <font>("Helvetica",12)</font>
     <hbox>
         <scale>
@@ -22,6 +22,19 @@
           <resolution>0.0001</resolution>
           <min_>0.0</min_>
           <max_>2.0</max_>
+          <initval>0.0</initval>
+          <width>50</width>
+        </scale>
+    </hbox>
+  </labelframe> -->
+  <labelframe text="MPG">
+    <font>("Helvetica",12)</font>
+    <hbox>
+        <scale>
+          <halpin>"mpg"</halpin>
+          <resolution>4</resolution>
+          <min_>0.0</min_>
+          <max_>80.0</max_>
           <initval>0.0</initval>
           <width>50</width>
         </scale>
@@ -45,6 +58,24 @@
             <font>("Helvetica",14)</font>
             <bg>"#FF7F7F"</bg> <width>6</width>
         </button>
+    </hbox>
+  </labelframe>
+  <labelframe text="buttons">
+    <font>("Helvetica",12)</font>
+    <hbox>
+        <button>
+            <halpin>"wheel-reset"</halpin>
+            <text>"Wheel Reset"</text>
+            <font>("Helvetica",14)</font>
+            <bg>"#90eea0"</bg> <width>6</width>
+        </button>
+        
+        <label><text>" "</text></label>
+        <checkbutton>
+            <halpin>"css"</halpin>
+            <text>"CSS On/Off"</text>
+            <font>("Helvetica",14)</font>
+        </checkbutton>
     </hbox>
   </labelframe>
   <labelframe text="Manual Feed">
