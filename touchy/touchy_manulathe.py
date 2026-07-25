@@ -221,6 +221,14 @@ class touchy:
         if not self.theme_name == "Follow System Theme":
             settings.props.gtk_theme_name = self.theme_name
 
+        # instant touch feedback: no GTK animations, no theme CSS transitions
+        settings.props.gtk_enable_animations = False
+        no_anim_provider = Gtk.CssProvider()
+        no_anim_provider.load_from_data(b"* { transition: none; }")
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(), no_anim_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
         # single NML status channel shared by the whole GUI
         self.emcstat = linuxcnc.stat()
 
