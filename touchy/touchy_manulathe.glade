@@ -3716,7 +3716,7 @@
                             <property name="use_underline">True</property>
                             <property name="focus_on_click">False</property>
                             <property name="active">True</property>
-                            <signal name="clicked" handler="on_fo_clicked"/>
+                            <signal name="pressed" handler="on_fo_clicked"/>
                           </object>
                           <packing>
                             <property name="position">0</property>
@@ -3730,7 +3730,7 @@
                             <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
                             <property name="focus_on_click">False</property>
-                            <signal name="clicked" handler="on_so_clicked"/>
+                            <signal name="pressed" handler="on_so_clicked"/>
                           </object>
                           <packing>
                             <property name="position">1</property>
@@ -3744,7 +3744,7 @@
                             <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
                             <property name="focus_on_click">False</property>
-                            <signal name="clicked" handler="on_rpm_clicked"/>
+                            <signal name="pressed" handler="on_rpm_clicked"/>
                           </object>
                           <packing>
                             <property name="position">2</property>
@@ -3758,7 +3758,7 @@
                             <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
                             <property name="focus_on_click">False</property>
-                            <signal name="clicked" handler="on_css_clicked"/>
+                            <signal name="pressed" handler="on_css_clicked"/>
                           </object>
                           <packing>
                             <property name="position">3</property>
@@ -3772,7 +3772,7 @@
                             <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
                             <property name="focus_on_click">False</property>
-                            <signal name="clicked" handler="on_mv_clicked"/>
+                            <signal name="pressed" handler="on_mv_clicked"/>
                           </object>
                           <packing>
                             <property name="position">4</property>
@@ -3786,7 +3786,7 @@
                             <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
                             <property name="focus_on_click">False</property>
-                            <signal name="clicked" handler="on_manual_feed_clicked"/>
+                            <signal name="pressed" handler="on_manual_feed_clicked"/>
                           </object>
                           <packing>
                             <property name="position">5</property>
@@ -3800,7 +3800,7 @@
                             <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
                             <property name="focus_on_click">False</property>
-                            <signal name="clicked" handler="on_scrolling_clicked"/>
+                            <signal name="pressed" handler="on_scrolling_clicked"/>
                           </object>
                           <packing>
                             <property name="position">6</property>
