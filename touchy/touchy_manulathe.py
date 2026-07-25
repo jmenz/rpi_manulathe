@@ -158,6 +158,8 @@ class touchy:
         self.window_geometry = self.prefs.getpref('window_geometry', 'default', str)
         self.window_max = self.prefs.getpref('window_force_max', 'false', bool)
 
+        self.max_feed_override = float(self.ini.find("DISPLAY", "MAX_FEED_OVERRIDE")) * 100
+        self.max_spindle_override = float(self.ini.find("DISPLAY", "MAX_SPINDLE_OVERRIDE")) * 100
         self.velocity_limit = float(self.ini.find("DISPLAY", "MAX_LINEAR_VELOCITY"))
         self.default_velocity = float(self.ini.find("DISPLAY", "DEFAULT_LINEAR_VELOCITY"))
         self.default_feedrate = float(self.ini.find("DISPLAY", "DEFAULT_FEED_PER_REV"))
@@ -307,6 +309,8 @@ class touchy:
                                                floods, mists, spindles, prefs,
                                                opstop, blockdel, spindle_values,
                                                self.emcstat)
+
+        self.status_tab_idx = self.get_widget('notebook1').page_num(self.get_widget('sw_status_tab'))
 
         self.current_file = self.status.emcstat.file
         # check the ini file if UNITS are set to mm"
@@ -798,7 +802,7 @@ class touchy:
     def periodic_status(self):
         self.linuxcnc.mask()
         self.radiobutton_mask = 1
-        self.status.periodic()
+        self.status.periodic(self.tab == self.status_tab_idx)
         # check if current_file changed
         # perhaps by another gui or a gladevcp app
         if self.current_file != self.status.emcstat.file:
@@ -817,9 +821,8 @@ class touchy:
             self.fo_val += d
             if self.fo_val < 0:
                 self.fo_val = 0
-            max_feed_override = float(self.ini.find("DISPLAY", "MAX_FEED_OVERRIDE")) * 100
-            if self.fo_val > max_feed_override:
-                self.fo_val = max_feed_override
+            if self.fo_val > self.max_feed_override:
+                self.fo_val = self.max_feed_override
             if d != 0:
                 self.linuxcnc.feed_override(self.fo_val)
 
@@ -831,9 +834,8 @@ class touchy:
             self.so_val += d
             if self.so_val < 0:
                 self.so_val = 0
-            max_spindle_override = float(self.ini.find("DISPLAY", "MAX_SPINDLE_OVERRIDE")) * 100
-            if self.so_val > max_spindle_override:
-                self.so_val = max_spindle_override
+            if self.so_val > self.max_spindle_override:
+                self.so_val = self.max_spindle_override
             if d != 0:
                 self.linuxcnc.spindle_override(self.so_val)
 

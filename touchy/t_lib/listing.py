@@ -27,6 +27,7 @@ class listing:
         self.program = []
         self.lines = 0
         self.colors = colors
+        self.row_highlighted = [None] * self.numlabels
         self.populate()
 
     def populate(self):
@@ -35,19 +36,23 @@ class listing:
             l = self.labels[i]
             e = self.eventboxes[i]
             if i < len(program):
-                l.set_text(program[i].rstrip())
+                text = program[i].rstrip()
             else:
-                l.set_text('')
-            
-            if self.start_line == self.lineoffset + i:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, self.colors['selected_bg'])
-                l.modify_fg(self.gtk.StateFlags.NORMAL, self.colors['selected_fg'])
-            elif self.selected == self.lineoffset + i:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, self.colors['selected_bg'])
-                l.modify_fg(self.gtk.StateFlags.NORMAL, self.colors['selected_fg'])
-            else:
-                e.modify_bg(self.gtk.StateFlags.NORMAL, self.colors['normal_bg'])
-                l.modify_fg(self.gtk.StateFlags.NORMAL, self.colors['normal_fg'])
+                text = ''
+            if l.get_text() != text:
+                l.set_text(text)
+
+            row = self.lineoffset + i
+            highlighted = row == self.start_line or row == self.selected
+            # restyling is expensive, only touch rows whose state changed
+            if self.row_highlighted[i] != highlighted:
+                self.row_highlighted[i] = highlighted
+                if highlighted:
+                    e.modify_bg(self.gtk.StateFlags.NORMAL, self.colors['selected_bg'])
+                    l.modify_fg(self.gtk.StateFlags.NORMAL, self.colors['selected_fg'])
+                else:
+                    e.modify_bg(self.gtk.StateFlags.NORMAL, self.colors['normal_bg'])
+                    l.modify_fg(self.gtk.StateFlags.NORMAL, self.colors['normal_fg'])
 
 
     def show_line(self, n):

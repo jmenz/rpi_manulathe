@@ -326,13 +326,23 @@ class emc_status:
                                 return i - 584
                 return 1
 
-        def periodic(self):
-                self.emcstat.poll()
-                am = self.emcstat.axis_mask
-                lathe = not (self.emcstat.axis_mask & 2)
-                dtg = self.emcstat.dtg
-                self.is_manual_mode = self.emcstat.task_mode == self.emc.MODE_MANUAL
-                self.is_program_executing = self.emcstat.state == self.emc.RCS_EXEC
+        def periodic(self, status_tab_visible=True):
+                stat = self.emcstat
+                stat.poll()
+                # every stat attribute access marshals fresh python objects
+                # from the C status buffer, so read each one only once
+                am = stat.axis_mask
+                lathe = not (am & 2)
+                dtg = stat.dtg
+                g5x_offset = stat.g5x_offset
+                g92_offset = stat.g92_offset
+                tool_offset = stat.tool_offset
+                homed = stat.homed
+                spindle0 = stat.spindle[0]
+                rotation_xy = stat.rotation_xy
+                task_state = stat.task_state
+                self.is_manual_mode = stat.task_mode == self.emc.MODE_MANUAL
+                self.is_program_executing = stat.state == self.emc.RCS_EXEC
 
                 if not self.resized_dro:
                         height = 9
@@ -349,40 +359,40 @@ class emc_status:
                         self.resized_dro = 1
                                         
                 if self.actual:
-                        p = self.emcstat.actual_position
+                        p = stat.actual_position
                 else:
-                        p = self.emcstat.position
+                        p = stat.position
 
-                x = p[0] - self.emcstat.g5x_offset[0] - self.emcstat.tool_offset[0]
-                y = p[1] - self.emcstat.g5x_offset[1] - self.emcstat.tool_offset[1]
-                z = p[2] - self.emcstat.g5x_offset[2] - self.emcstat.tool_offset[2]
-                a = p[3] - self.emcstat.g5x_offset[3] - self.emcstat.tool_offset[3]
-                b = p[4] - self.emcstat.g5x_offset[4] - self.emcstat.tool_offset[4]
-                c = p[5] - self.emcstat.g5x_offset[5] - self.emcstat.tool_offset[5]
-                u = p[6] - self.emcstat.g5x_offset[6] - self.emcstat.tool_offset[6]
-                v = p[7] - self.emcstat.g5x_offset[7] - self.emcstat.tool_offset[7]
-                w = p[8] - self.emcstat.g5x_offset[8] - self.emcstat.tool_offset[8]
+                x = p[0] - g5x_offset[0] - tool_offset[0]
+                y = p[1] - g5x_offset[1] - tool_offset[1]
+                z = p[2] - g5x_offset[2] - tool_offset[2]
+                a = p[3] - g5x_offset[3] - tool_offset[3]
+                b = p[4] - g5x_offset[4] - tool_offset[4]
+                c = p[5] - g5x_offset[5] - tool_offset[5]
+                u = p[6] - g5x_offset[6] - tool_offset[6]
+                v = p[7] - g5x_offset[7] - tool_offset[7]
+                w = p[8] - g5x_offset[8] - tool_offset[8]
 
-                if self.emcstat.rotation_xy != 0:
-                        t = math.radians(-self.emcstat.rotation_xy)
+                if rotation_xy != 0:
+                        t = math.radians(-rotation_xy)
                         xr = x * math.cos(t) - y * math.sin(t)
                         yr = x * math.sin(t) + y * math.cos(t)
                         x = xr
                         y = yr
 
-                x -= self.emcstat.g92_offset[0] 
-                y -= self.emcstat.g92_offset[1] 
-                z -= self.emcstat.g92_offset[2] 
-                a -= self.emcstat.g92_offset[3] 
-                b -= self.emcstat.g92_offset[4] 
-                c -= self.emcstat.g92_offset[5] 
-                u -= self.emcstat.g92_offset[6] 
-                v -= self.emcstat.g92_offset[7] 
-                w -= self.emcstat.g92_offset[8] 
+                x -= g92_offset[0]
+                y -= g92_offset[1]
+                z -= g92_offset[2]
+                a -= g92_offset[3]
+                b -= g92_offset[4]
+                c -= g92_offset[5]
+                u -= g92_offset[6]
+                v -= g92_offset[7]
+                w -= g92_offset[8]
 
                 relp = [x, y, z, a, b, c, u, v, w]
 
-                self.hal.x_summ_offset = 0 - self.emcstat.g5x_offset[0] - self.emcstat.tool_offset[0] - self.emcstat.g92_offset[0]
+                self.hal.x_summ_offset = 0 - g5x_offset[0] - tool_offset[0] - g92_offset[0]
 
                 if self.mm != self.machine_units_mm:
                         p = self.convert_units(p,self.unit_convert)
@@ -397,7 +407,7 @@ class emc_status:
                 d = 0
                 if (am & 1):
                         h = " "
-                        if self.emcstat.homed[0]: h = "*"
+                        if homed[0]: h = "*"
                         
                         if lathe:
                                 set_text(self.relative[d], fmt % ('R', relp[0]))
@@ -417,135 +427,145 @@ class emc_status:
                 for i in range(1, 9):
                         if am & (1<<i):
                                 letter = 'XYZABCUVW'[i]
-                                h = "*" if self.emcstat.homed[coordinates.index(letter)] else " "
+                                h = "*" if homed[coordinates.index(letter)] else " "
                                 set_text(self.relative[d], fmt % (letter, relp[i]))
                                 set_text(self.absolute[d], h + fmt % (letter, p[i]))
                                 set_text(self.distance[d], fmt % (letter, dtg[i]))
                                 d += 1
 
-                estopped = self.emcstat.task_state == self.emc.STATE_ESTOP
+                estopped = task_state == self.emc.STATE_ESTOP
                 set_active(self.estops['estop'], estopped)
                 set_active(self.estops['estop_reset'], not estopped)
 
-                on = self.emcstat.task_state == self.emc.STATE_ON
+                on = task_state == self.emc.STATE_ON
                 set_active(self.machines['on'], on)
                 set_active(self.machines['off'], not on)
 
-                ovl = self.emcstat.joint[0]['override_limits']
+                ovl = stat.joint[0]['override_limits']
                 set_active(self.override_limit, ovl)
 
-                set_text(self.status['file'], os.path.basename(self.emcstat.file))
-                set_text(self.status['file_lines'], "%d" % len(self.listing.program))
-                set_text(self.status['line'], "%d" % self.emcstat.current_line)
-                set_text(self.status['id'], "%d" % self.emcstat.motion_id)
-                set_text(self.status['dtg'], "%.4f" % self.emcstat.distance_to_go)
-                set_text(self.status['velocity'], "%.4f" % (self.emcstat.current_vel * 60.0))
-                set_text(self.status['delay'], "%.2f" % self.emcstat.delay_left)
-
-                flood = self.emcstat.flood
+                flood = stat.flood
                 set_active(self.floods['on'], flood)
                 set_active(self.floods['off'], not flood)
 
-                mist = self.emcstat.mist
+                mist = stat.mist
                 set_active(self.mists['on'], mist)
                 set_active(self.mists['off'], not mist)
 
-                spin = self.emcstat.spindle[0]['direction']
+                spin = spindle0['direction']
                 set_active(self.spindles['forward'], spin == 1)
                 set_active(self.spindles['off'], spin == 0)
                 set_active(self.spindles['reverse'], spin == -1)
 
-                ol = ""
-                for i in range(len(self.emcstat.limit)):
-                        if self.emcstat.limit[i]:
-                                ol += "%c " % "XYZABCUVW"[i]
-                set_text(self.status['onlimit'], ol)
+                # spindlespeed2 lives outside the status tab, so it is
+                # updated unconditionally
+                set_text(self.status['spindlespeed2'], "%d" % spindle0['speed'])
 
-                sd = (_("CCW"), _("Stopped"), _("CW"))
-                set_text(self.status['spindledir'], sd[self.emcstat.spindle[0]['direction']+1])
+                if status_tab_visible:
+                        set_text(self.status['file'], os.path.basename(stat.file))
+                        set_text(self.status['file_lines'], "%d" % len(self.listing.program))
+                        set_text(self.status['line'], "%d" % stat.current_line)
+                        set_text(self.status['id'], "%d" % stat.motion_id)
+                        set_text(self.status['dtg'], "%.4f" % stat.distance_to_go)
+                        set_text(self.status['velocity'], "%.4f" % (stat.current_vel * 60.0))
+                        set_text(self.status['delay'], "%.2f" % stat.delay_left)
 
-                set_text(self.status['spindlespeed'], "%d" % self.emcstat.spindle[0]['speed'])
-                set_text(self.status['spindlespeed2'], "%d" % self.emcstat.spindle[0]['speed'])
-                set_text(self.status['loadedtool'], "%d" % self.emcstat.tool_in_spindle)
-                if self.emcstat.pocket_prepped == -1:
-                        set_text(self.status['preppedtool'], _("None"))
-                else:
-                        set_text(self.status['preppedtool'], "%d" % self.emcstat.tool_table[self.emcstat.pocket_prepped].id)
+                        limit = stat.limit
+                        ol = ""
+                        for i in range(len(limit)):
+                                if limit[i]:
+                                        ol += "%c " % "XYZABCUVW"[i]
+                        set_text(self.status['onlimit'], ol)
 
-                tt = ""
-                for p, t in zip(list(range(len(self.emcstat.tool_table))), self.emcstat.tool_table):
-                        if t.id != -1:
-                                tt += "<b>P%02d:</b>T%02d\t" % (p, t.id)
-                                if p == 0: tt += '\n'
-                set_text(self.status['tooltable'], tt)
-                
-                set_text(self.status['xyrotation'], "%d" % self.emcstat.rotation_xy)
+                        sd = (_("CCW"), _("Stopped"), _("CW"))
+                        set_text(self.status['spindledir'], sd[spin+1])
 
-                cs = self.emcstat.g5x_index
-                if cs<7:
-                        cslabel = "G5%d" % (cs+3)
-                else:
-                        cslabel = "G59.%d" % (cs-6)
-                        
-                set_text(self.status['label_g5xoffset'], '<b>' + cslabel + '</b>' + ' Offset:')
-
-                g5x = ""
-                g92 = ""
-                for i in range(len(self.emcstat.g5x_offset)):
-                        letter = "XYZABCUVW"[i]
-                        if self.emcstat.g5x_offset[i] != 0: g5x += "%s%.3f " % (letter, self.emcstat.g5x_offset[i])
-                        if self.emcstat.g92_offset[i] != 0: g92 += "%s%.3f " % (letter, self.emcstat.g92_offset[i])
-                                   
-                set_text(self.status['g5xoffset'], g5x)
-                set_text(self.status['g92offset'], g92)
-
-                tlo = ""
-                for i in range(len(self.emcstat.tool_offset)):
-                        letter = "XYZABCUVW"[i]
-                        if self.emcstat.tool_offset[i] != 0: tlo += "%s%.3f " % (letter, self.emcstat.tool_offset[i])
-                set_text(self.status['tlo'], tlo)
-
-
-                active_codes = []
-                for i in self.emcstat.gcodes[1:]:
-                        if i == -1: continue
-                        if i % 10 == 0:
-                                active_codes.append("G%d" % (i/10))
+                        set_text(self.status['spindlespeed'], "%d" % spindle0['speed'])
+                        set_text(self.status['loadedtool'], "%d" % stat.tool_in_spindle)
+                        tool_table = stat.tool_table
+                        pocket_prepped = stat.pocket_prepped
+                        if pocket_prepped == -1:
+                                set_text(self.status['preppedtool'], _("None"))
                         else:
-                                active_codes.append("G%d.%d" % (i/10, i%10))
+                                set_text(self.status['preppedtool'], "%d" % tool_table[pocket_prepped].id)
 
-                for i in self.emcstat.mcodes[1:]:
-                        if i == -1: continue
-                        active_codes.append("M%d" % i)
+                        tt = ""
+                        for p, t in zip(list(range(len(tool_table))), tool_table):
+                                if t.id != -1:
+                                        tt += "<b>P%02d:</b>T%02d\t" % (p, t.id)
+                                        if p == 0: tt += '\n'
+                        set_text(self.status['tooltable'], tt)
 
-                feed_str = "F%.1f" % self.emcstat.settings[1]
-                if feed_str.endswith(".0"): feed_str = feed_str[:-2]
-                active_codes.append(feed_str)
-                active_codes.append("S%.0f" % self.emcstat.settings[2])
+                        set_text(self.status['xyrotation'], "%d" % rotation_xy)
 
-                set_text(self.status['activecodes'], " ".join(active_codes))
+                        cs = stat.g5x_index
+                        if cs<7:
+                                cslabel = "G5%d" % (cs+3)
+                        else:
+                                cslabel = "G59.%d" % (cs-6)
+
+                        set_text(self.status['label_g5xoffset'], '<b>' + cslabel + '</b>' + ' Offset:')
+
+                        g5x = ""
+                        g92 = ""
+                        for i in range(len(g5x_offset)):
+                                letter = "XYZABCUVW"[i]
+                                if g5x_offset[i] != 0: g5x += "%s%.3f " % (letter, g5x_offset[i])
+                                if g92_offset[i] != 0: g92 += "%s%.3f " % (letter, g92_offset[i])
+
+                        set_text(self.status['g5xoffset'], g5x)
+                        set_text(self.status['g92offset'], g92)
+
+                        tlo = ""
+                        for i in range(len(tool_offset)):
+                                letter = "XYZABCUVW"[i]
+                                if tool_offset[i] != 0: tlo += "%s%.3f " % (letter, tool_offset[i])
+                        set_text(self.status['tlo'], tlo)
+
+                        active_codes = []
+                        for i in stat.gcodes[1:]:
+                                if i == -1: continue
+                                if i % 10 == 0:
+                                        active_codes.append("G%d" % (i/10))
+                                else:
+                                        active_codes.append("G%d.%d" % (i/10, i%10))
+
+                        for i in stat.mcodes[1:]:
+                                if i == -1: continue
+                                active_codes.append("M%d" % i)
+
+                        settings = stat.settings
+                        feed_str = "F%.1f" % settings[1]
+                        if feed_str.endswith(".0"): feed_str = feed_str[:-2]
+                        active_codes.append(feed_str)
+                        active_codes.append("S%.0f" % settings[2])
+
+                        set_text(self.status['activecodes'], " ".join(active_codes))
 
                 set_active(self.prefs['inch'], self.mm == 0)
                 set_active(self.prefs['mm'], self.mm == 1)
                 set_active(self.prefs['actual'], self.actual == 1)
                 set_active(self.prefs['commanded'], self.actual == 0)
 
-                set_active(self.opstop['on'], self.emcstat.optional_stop)
-                set_active(self.opstop['off'], not self.emcstat.optional_stop)
-                
-                set_active(self.blockdel['on'], self.emcstat.block_delete)
-                set_active(self.blockdel['off'], not self.emcstat.block_delete)
+                optional_stop = stat.optional_stop
+                set_active(self.opstop['on'], optional_stop)
+                set_active(self.opstop['off'], not optional_stop)
 
-                set_text(self.spindle_values['sp_commanded'], "Set: %d" % self.emcstat.spindle[0]['speed'])
+                block_delete = stat.block_delete
+                set_active(self.blockdel['on'], block_delete)
+                set_active(self.blockdel['off'], not block_delete)
+
+                set_text(self.spindle_values['sp_commanded'], "Set: %d" % spindle0['speed'])
                 set_text(self.spindle_values['sp_current'], "Current: %d" % self.hal.spindle_velocity)
                 set_text(self.spindle_values['sp_angle'], "Angle: %#06.2f" % self.hal.spindle_pos)
 
-                if self.emcstat.motion_id == 0 and (self.emcstat.interp_state == self.emc.INTERP_PAUSED or self.emcstat.exec_state == self.emc.EXEC_WAITING_FOR_DELAY):
-                        self.listing.highlight_line(self.emcstat.current_line)
-                elif self.emcstat.motion_id == 0:
-                        self.listing.highlight_line(self.emcstat.motion_line)
+                motion_id = stat.motion_id
+                if motion_id == 0 and (stat.interp_state == self.emc.INTERP_PAUSED or stat.exec_state == self.emc.EXEC_WAITING_FOR_DELAY):
+                        self.listing.highlight_line(stat.current_line)
+                elif motion_id == 0:
+                        self.listing.highlight_line(stat.motion_line)
                 else:
-                        self.listing.highlight_line(self.emcstat.motion_id or self.emcstat.motion_line)
+                        self.listing.highlight_line(motion_id or stat.motion_line)
 
                 e = self.emcerror.poll()
                 if e:
